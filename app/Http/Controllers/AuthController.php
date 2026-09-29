@@ -74,7 +74,9 @@ class AuthController extends Controller
 
     public function redirectToGoogle(): RedirectResponse
     {
-        return Socialite::driver('google')->redirect();
+        return redirect()->route('login')->withErrors([
+            'email' => 'Fitur masuk dengan Google saat ini dinonaktifkan.',
+        ]);
     }
 
     public function handleGoogleCallback(): RedirectResponse
