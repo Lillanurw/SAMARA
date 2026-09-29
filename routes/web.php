@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports', [VisitReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export/excel', [VisitReportController::class, 'exportExcel'])->name('reports.exportExcel');
     Route::get('/reports/export/pdf', [VisitReportController::class, 'exportPdf'])->name('reports.exportPdf');
+    Route::get('/reports/export/gsheets', [VisitReportController::class, 'exportGsheets'])->name('reports.exportGsheets');
+    Route::get('/reports/export/gdocs', [VisitReportController::class, 'exportGdocs'])->name('reports.exportGdocs');
     Route::get('/reports/create', [VisitReportController::class, 'create'])->name('reports.create');
     Route::post('/reports', [VisitReportController::class, 'store'])->name('reports.store');
     Route::get('/reports/{visitReport}', [VisitReportController::class, 'show'])->name('reports.show');

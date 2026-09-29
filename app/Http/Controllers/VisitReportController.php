@@ -122,6 +122,70 @@ class VisitReportController extends Controller
         return view('reports.export_pdf', $data);
     }
 
+    public function exportGsheets(Request $request)
+    {
+        $data = $this->getReportExportData($request);
+        $filename = 'Rencana_dan_Realisasi_Kunjungan_GSheets_' . $data['startDate'] . '_sd_' . $data['endDate'] . '.csv';
+
+        return response()->streamDownload(function () use ($data) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['FIELD FORCE', $data['fieldForce'], '', 'MINGGU KE', $data['weekNo']]);
+            fputcsv($handle, ['RAYON', $data['rayon'], '', 'BULAN', $data['monthName']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, [
+                'Hari/Tanggal',
+                'Rencana Customer',
+                'Rencana Target',
+                'Keterangan',
+                'Hasil Customer',
+                'Pejabat Nama',
+                'Pejabat Jabatan',
+                'Hasil Kunjungan',
+                'Tindak Lanjut'
+            ]);
+
+            foreach ($data['plans'] as $plan) {
+                $report = $plan->visitReport;
+                $dayDate = \Carbon\Carbon::parse($plan->planned_date)->translatedFormat('l, d F Y');
+
+                fputcsv($handle, [
+                    $dayDate,
+                    $plan->customer->customer_name ?? '—',
+                    $plan->specific_objective ?? '—',
+                    $plan->resource_notes ?? '—',
+                    $report ? ($plan->customer->customer_name ?? '—') : '—',
+                    $report ? ($report->submitter->full_name ?? '—') : '—',
+                    $report ? 'Submitter' : '—',
+                    $report ? ($report->outcome_summary ?? 'Belum Ada Laporan') : 'Belum Ada Laporan',
+                    $report ? ($report->next_step_summary ?? '—') : '—'
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    public function exportGdocs(Request $request)
+    {
+        $data = $this->getReportExportData($request);
+        $filename = 'Rencana_dan_Realisasi_Kunjungan_GDocs_' . $data['startDate'] . '_sd_' . $data['endDate'] . '.doc';
+
+        return response()->streamDownload(function () use ($data) {
+            echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Laporan Kunjungan</title></head><body>";
+            echo view('reports.export_table', $data)->render();
+            echo "</body></html>";
+        }, $filename, [
+            'Content-Type' => 'application/msword; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
     public function create(Request $request): View|RedirectResponse
     {
         $planId = $request->input('visit_plan_id');

@@ -27,13 +27,61 @@
             </div>
         </div>
 
-        <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
-            <a href="{{ route('reports.exportPdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}" target="_blank" class="btn" style="background: #e11d48; color: #fff; border: none; min-height: 38px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 0 16px; border-radius: var(--radius-sm); text-decoration: none;">
-                📄 Export PDF
-            </a>
-            <a href="{{ route('reports.exportExcel', ['start_date' => $startDate, 'end_date' => $endDate]) }}" class="btn" style="background: #10b981; color: #fff; border: none; min-height: 38px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 0 16px; border-radius: var(--radius-sm); text-decoration: none;">
-                📊 Export Excel
-            </a>
+        <div style="position: relative;" x-data="{ exportOpen: false }">
+            <button type="button"
+                    class="btn btn-primary"
+                    @click="exportOpen = !exportOpen"
+                    style="min-height: 38px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 0 16px; border-radius: var(--radius-sm); cursor: pointer;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export Laporan</span>
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition: transform 0.2s;" :style="exportOpen ? 'transform: rotate(180deg);' : ''"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+
+            <div x-show="exportOpen"
+                 @click.away="exportOpen = false"
+                 class="dropdown-menu"
+                 style="position: absolute; right: 0; top: 100%; margin-top: 6px; min-width: 230px; z-index: 100; padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg);"
+                 x-cloak>
+                
+                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); padding: 6px 12px 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Format Dokumen
+                </div>
+
+                <a href="{{ route('reports.exportPdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                   target="_blank"
+                   class="dropdown-item"
+                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;">
+                    <span style="font-size: 15px;">📄</span>
+                    <span>Export PDF</span>
+                </a>
+
+                <a href="{{ route('reports.exportExcel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                   class="dropdown-item"
+                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;">
+                    <span style="font-size: 15px;">📊</span>
+                    <span>Export Excel (.xlsx)</span>
+                </a>
+
+                <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
+
+                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); padding: 6px 12px 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Google Workspace
+                </div>
+
+                <a href="{{ route('reports.exportGsheets', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                   class="dropdown-item"
+                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #15803d; text-decoration: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 3v3h-7V6h7zm-8 3H4V6h7v3zM4 11h7v3H4v-3zm9 0h7v3h-7v-3zm7 7h-7v-3h7v3zm-8 0H4v-3h7v3z"/></svg>
+                    <span>Export ke Google Sheets</span>
+                </a>
+
+                <a href="{{ route('reports.exportGdocs', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                   class="dropdown-item"
+                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #1d4ed8; text-decoration: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span>Export ke Google Docs</span>
+                </a>
+            </div>
         </div>
     </form>
 </div>
