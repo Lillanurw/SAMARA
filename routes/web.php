@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\AppSettingController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\AuditLogController;
-use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\SegmentController;
 use App\Http\Controllers\Admin\UserController;
@@ -67,6 +67,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/create', [VisitReportController::class, 'create'])->name('reports.create');
     Route::post('/reports', [VisitReportController::class, 'store'])->name('reports.store');
     Route::get('/reports/{visitReport}', [VisitReportController::class, 'show'])->name('reports.show');
+    Route::get('/reports/{visitReport}/edit', [VisitReportController::class, 'edit'])->name('reports.edit');
+    Route::put('/reports/{visitReport}', [VisitReportController::class, 'update'])->name('reports.update');
+
+    // Shared Customer Management
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::patch('/customers/{customer}/toggle', [CustomerController::class, 'toggleActive'])->name('customers.toggle');
 
     // Follow-ups
     Route::get('/followups', [FollowUpController::class, 'index'])->name('followups.index');
@@ -93,11 +101,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
-
-        Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-        Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-        Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
-        Route::patch('/customers/{customer}/toggle', [CustomerController::class, 'toggleActive'])->name('customers.toggle');
 
         Route::get('/areas', [AreaController::class, 'index'])->name('areas.index');
         Route::post('/areas', [AreaController::class, 'store'])->name('areas.store');

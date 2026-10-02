@@ -51,7 +51,7 @@ class DirectorInputCreatedNotification extends Notification
             'input_type' => $inputTypeLabel,
             'direction_text' => $this->directorInput->direction_text,
             'creator_name' => $creatorName,
-            'priority' => (string) $this->directorInput->priority,
+            'priority' => $this->directorInput->priority instanceof \BackedEnum ? $this->directorInput->priority->value : (string) $this->directorInput->priority,
             'due_date' => $this->directorInput->due_date ? $this->directorInput->due_date->format('d/m/Y') : null,
             'url' => route('directions.myDirections'),
         ];

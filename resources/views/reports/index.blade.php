@@ -7,27 +7,108 @@
 @section('content')
 <!-- Filter & Export Action Bar -->
 <div class="samara-card" style="margin-bottom: 20px;">
-    <form method="GET" action="{{ route('reports.index') }}" style="display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; flex: 1;">
-            <div style="min-width: 160px;">
-                <label class="form-label" style="font-weight: 700; font-size: 12px;">Tanggal Mulai</label>
-                <input type="date" name="start_date" class="form-control" value="{{ $startDate }}">
+    <form method="GET" action="{{ route('reports.index') }}" style="display: flex; flex-direction: column; gap: 16px;" x-data="filterForm('{{ $instansi ?? '' }}', '{{ $satuan ?? '' }}')">
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+            <div style="flex: 0 0 auto; width: 160px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 6px;">Tanggal Mulai</label>
+                <input type="date" name="start_date" class="form-control" value="{{ $startDate }}" style="width: 100%;">
             </div>
-            <div style="min-width: 160px;">
-                <label class="form-label" style="font-weight: 700; font-size: 12px;">Tanggal Selesai</label>
-                <input type="date" name="end_date" class="form-control" value="{{ $endDate }}">
+            <div style="flex: 0 0 auto; width: 160px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 6px;">Tanggal Selesai</label>
+                <input type="date" name="end_date" class="form-control" value="{{ $endDate }}" style="width: 100%;">
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button type="submit" class="btn btn-primary" style="min-height: 38px;">
-                    🔍 Filter Tanggal
-                </button>
-                <a href="{{ route('reports.index') }}" class="btn btn-secondary" style="min-height: 38px; text-decoration: none; display: inline-flex; align-items: center;">
-                    ↺ Reset
-                </a>
+            <div style="flex: 1 1 200px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 6px;">Instansi</label>
+                <select name="instansi" class="form-select" x-model="selectedInstansi" @change="updateSatuans()" style="width: 100%;">
+                    <option value="">Semua Instansi</option>
+                    <template x-for="inst in instansiList" :key="inst.name">
+                        <option :value="inst.name" x-text="inst.name"></option>
+                    </template>
+                </select>
+            </div>
+            <div style="flex: 1 1 200px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 6px;">Satuan</label>
+                <select name="satuan" class="form-select" x-model="selectedSatuan" style="width: 100%;">
+                    <option value="">Semua Satuan</option>
+                    <template x-for="sat in availableSatuans" :key="sat">
+                        <option :value="sat" x-text="sat"></option>
+                    </template>
+                </select>
+            </div>
+            <div style="flex: 1 1 250px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 6px;">Filter PIC</label>
+                <div x-data="{
+                        open: false,
+                        options: [
+                            @foreach($users ?? [] as $u)
+                                { id: '{{ $u->id }}', name: '{{ addslashes($u->full_name) }}' },
+                            @endforeach
+                        ],
+                        selected: {{ json_encode(array_map('strval', $picIds ?? [])) }},
+                        get selectedNames() {
+                            if (this.selected.length === 0) return 'Semua PIC';
+                            let names = this.options.filter(o => this.selected.includes(o.id.toString())).map(o => o.name);
+                            if (names.length > 2) return names.length + ' PIC Dipilih';
+                            return names.join(', ');
+                        },
+                        toggle(id) {
+                            id = id.toString();
+                            if (this.selected.includes(id)) {
+                                this.selected = this.selected.filter(i => i !== id);
+                            } else {
+                                this.selected.push(id);
+                            }
+                        }
+                    }"
+                    style="position: relative; width: 100%;">
+                    
+                    <!-- Hidden Select to submit data -->
+                    <select name="pic_id[]" multiple style="display:none;">
+                        <template x-for="id in selected">
+                            <option :value="id" selected></option>
+                        </template>
+                    </select>
+                    
+                    <!-- Dropdown Button -->
+                    <button type="button" @click="open = !open" @click.away="open = false"
+                        class="form-control" style="width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; min-height: 38px; background: #fff; cursor: pointer; padding: 0 12px;">
+                        <span x-text="selectedNames" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;"></span>
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak
+                        x-transition.opacity.duration.200ms
+                        style="position: absolute; z-index: 50; top: 100%; left: 0; right: 0; margin-top: 4px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 250px; overflow-y: auto;">
+                        
+                        <div @click="selected = []" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--danger); background: #fef2f2;">
+                            ✕ Bersihkan Pilihan
+                        </div>
+                        
+                        <template x-for="opt in options" :key="opt.id">
+                            <label style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 13px; margin: 0; transition: background 0.2s;"
+                                   onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" :value="opt.id" @change="toggle(opt.id)" :checked="selected.includes(opt.id.toString())"
+                                       style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;">
+                                <span x-text="opt.name" style="flex: 1;"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div style="position: relative;" x-data="{ exportOpen: false }">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; padding-bottom: 6px;">
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary" style="min-height: 38px; padding: 0 20px;">
+                    🔍 Terapkan Filter
+                </button>
+                <a href="{{ route('reports.index') }}" class="btn btn-secondary" style="min-height: 38px; display: inline-flex; align-items: center; padding: 0 16px; text-decoration: none;">
+                    ↺ Reset
+                </a>
+            </div>
+
+            <div style="position: relative;" x-data="{ exportOpen: false }">
             <button type="button"
                     class="btn btn-primary"
                     @click="exportOpen = !exportOpen"
@@ -47,7 +128,7 @@
                     Format Dokumen
                 </div>
 
-                <a href="{{ route('reports.exportPdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                <a href="{{ route('reports.exportPdf', ['start_date' => $startDate, 'end_date' => $endDate, 'pic_id' => $picIds ?? [], 'instansi' => $instansi ?? null, 'satuan' => $satuan ?? null]) }}"
                    target="_blank"
                    class="dropdown-item"
                    style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;">
@@ -55,7 +136,7 @@
                     <span>Export PDF</span>
                 </a>
 
-                <a href="{{ route('reports.exportExcel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                <a href="{{ route('reports.exportExcel', ['start_date' => $startDate, 'end_date' => $endDate, 'pic_id' => $picIds ?? [], 'instansi' => $instansi ?? null, 'satuan' => $satuan ?? null]) }}"
                    class="dropdown-item"
                    style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;">
                     <span style="font-size: 15px;">📊</span>
@@ -68,14 +149,16 @@
                     Google Workspace
                 </div>
 
-                <a href="{{ route('reports.exportGsheets', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                <a href="{{ route('reports.exportGsheets', ['start_date' => $startDate, 'end_date' => $endDate, 'pic_id' => $picIds ?? [], 'instansi' => $instansi ?? null, 'satuan' => $satuan ?? null]) }}"
+                   target="_blank"
                    class="dropdown-item"
                    style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #15803d; text-decoration: none;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 3v3h-7V6h7zm-8 3H4V6h7v3zM4 11h7v3H4v-3zm9 0h7v3h-7v-3zm7 7h-7v-3h7v3zm-8 0H4v-3h7v3z"/></svg>
                     <span>Export ke Google Sheets</span>
                 </a>
 
-                <a href="{{ route('reports.exportGdocs', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                <a href="{{ route('reports.exportGdocs', ['start_date' => $startDate, 'end_date' => $endDate, 'pic_id' => $picIds ?? [], 'instansi' => $instansi ?? null, 'satuan' => $satuan ?? null]) }}"
+                   target="_blank"
                    class="dropdown-item"
                    style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #1d4ed8; text-decoration: none;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
@@ -184,3 +267,41 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('filterForm', (initialInstansi = '', initialSatuan = '') => ({
+            instansiList: [
+                { name: 'Mabes TNI', satuans: ['Akademi TNI', 'Paspamres', 'Koopssus', 'PMPP', 'Balog TNI', 'Pusada TNI', 'Pusjianstra Litbang TNI'] },
+                { name: 'Mabes AD', satuans: ['Pusbekangad', 'Pusziad', 'Puspalad', 'Pussenif', 'Pussenkav', 'Puspenerbad', 'Kodam Jaya', 'Kostrad', 'Kopassus', 'Dislaikad', 'Dislitbangad'] },
+                { name: 'Mabes AL', satuans: ['Kormar', 'Denjaka', 'Denipam', 'Disbekal', 'Dislaikmatal', 'Koarmada RI', 'Kopaska', 'Dislitbangal', 'Puspenerbal'] },
+                { name: 'Mabes AU', satuans: ['Disaero', 'Skadron 8', 'Kopasgat', 'Sat 90 Bravo', 'Lanud ATS', 'Koharmatau', 'Dislaiklambangjaau', 'Dislitbangau', 'Pusbekmatau', 'Disbangops'] },
+                { name: 'Kemhan', satuans: ['Baloghan', 'Pusalpalhan', 'Bidmatra Darat', 'Bidmatra Laut', 'Bidmatra Udara', 'TKDN', 'Bagmalur', 'Proglap', 'Pothan', 'Bacadnas', 'Puslaik', 'Puskod', 'Puslitbang', 'Renhan', 'Strahan'] },
+                { name: 'POLRI', satuans: ['Brimob', 'Wanterror', 'Polairud'] },
+                { name: 'Instansi Lain', satuans: ['BIN', 'Lemhannas', 'Basarnas', 'Kemlu', 'Bea Cukai', 'BNN', 'BNPT'] }
+            ],
+            selectedInstansi: initialInstansi,
+            selectedSatuan: initialSatuan,
+            availableSatuans: [],
+            init() {
+                this.updateSatuans();
+            },
+            updateSatuans() {
+                let found = this.instansiList.find(i => i.name === this.selectedInstansi);
+                this.availableSatuans = found ? found.satuans : [];
+                if (!this.availableSatuans.includes(this.selectedSatuan)) {
+                    this.selectedSatuan = '';
+                }
+            }
+        }));
+    });
+</script>
+@endpush
+
+
+
+
+
+
+

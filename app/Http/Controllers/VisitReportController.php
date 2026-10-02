@@ -28,6 +28,13 @@ class VisitReportController extends Controller
         // Date range filtering
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        $instansi = $request->input('instansi');
+        $satuan = $request->input('satuan');
+        $picIds = $request->input('pic_id', []);
+        if (!is_array($picIds)) {
+            $picIds = $picIds ? [$picIds] : [];
+        }
+        $users = User::where('is_active', true)->orderBy('full_name')->get();
 
         // 1. Visits needing report (In Progress or past planned without report)
         $pendingPlans = VisitPlan::with(['customer', 'area', 'owner'])
@@ -49,6 +56,9 @@ class VisitReportController extends Controller
 
         // 3. Submitted reports history
         $reportsQuery = VisitReport::with(['visitPlan.customer', 'visitPlan.area', 'submitter', 'directorInputs'])
+            ->when(!empty($picIds), fn($q) => $q->whereIn('submitted_by', $picIds))
+            ->when($instansi, fn($q) => $q->whereHas('visitPlan.customer', fn($c) => $c->where('instansi', $instansi)))
+            ->when($satuan, fn($q) => $q->whereHas('visitPlan.customer', fn($c) => $c->where('satuan', $satuan)))
             ->when($startDate, fn($q) => $q->whereDate('created_at', '>=', $startDate))
             ->when($endDate, fn($q) => $q->whereDate('created_at', '<=', $endDate))
             ->when(!$user->isAdmin() && !$user->isDirector(), function ($q) use ($user) {
@@ -66,7 +76,7 @@ class VisitReportController extends Controller
         $exportData = $this->getReportExportData($request);
 
         return view('reports.index', array_merge(
-            compact('pendingPlans', 'draftReports', 'reports', 'startDate', 'endDate'),
+            compact('pendingPlans', 'draftReports', 'reports', 'startDate', 'endDate', 'picIds', 'users', 'instansi', 'satuan'),
             $exportData
         ));
     }
@@ -76,11 +86,21 @@ class VisitReportController extends Controller
         $user = Auth::user();
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        $instansi = $request->input('instansi');
+        $satuan = $request->input('satuan');
+        $picIds = $request->input('pic_id', []);
+        if (!is_array($picIds)) {
+            $picIds = $picIds ? [$picIds] : [];
+        }
+        $users = User::where('is_active', true)->orderBy('full_name')->get();
 
         $carbonStart = Carbon::parse($startDate);
         $carbonEnd = Carbon::parse($endDate);
 
         $plans = VisitPlan::with(['customer.area', 'owner', 'visitReport.followUps', 'visitReport.submitter'])
+            ->when(!empty($picIds), fn($q) => $q->whereHas('visitReport', fn($r) => $r->whereIn('submitted_by', $picIds)))
+            ->when($instansi, fn($q) => $q->whereHas('customer', fn($c) => $c->where('instansi', $instansi)))
+            ->when($satuan, fn($q) => $q->whereHas('customer', fn($c) => $c->where('satuan', $satuan)))
             ->when(!$user->isAdmin() && !$user->isDirector(), function ($q) use ($user) {
                 $userAreaIds = $user->areas()->pluck('areas.id')->toArray();
                 $q->where('owner_id', $user->id)
@@ -90,7 +110,12 @@ class VisitReportController extends Controller
             ->orderBy('planned_date', 'asc')
             ->get();
 
-        $fieldForce = $user->full_name;
+        if (!empty($picIds)) {
+            $selectedUsers = User::whereIn('id', $picIds)->get();
+            $fieldForce = $selectedUsers->map(fn($u) => preg_replace('/^.*? - /', '', $u->full_name))->implode(', ');
+        } else {
+            $fieldForce = preg_replace('/^.*? - /', '', $user->full_name);
+        }
         $rayon = $user->areas->pluck('area_name')->implode(', ') ?: ($plans->pluck('customer.area.area_name')->filter()->unique()->implode(', ') ?: 'GP');
         $weekNo = $carbonStart->weekOfMonth == $carbonEnd->weekOfMonth
             ? $carbonStart->weekOfMonth
@@ -99,7 +124,7 @@ class VisitReportController extends Controller
             ? $carbonStart->translatedFormat('F Y')
             : $carbonStart->translatedFormat('d M Y') . ' — ' . $carbonEnd->translatedFormat('d M Y');
 
-        return compact('user', 'startDate', 'endDate', 'carbonStart', 'carbonEnd', 'plans', 'fieldForce', 'rayon', 'weekNo', 'monthName');
+        return compact('user', 'startDate', 'endDate', 'picIds', 'carbonStart', 'carbonEnd', 'plans', 'fieldForce', 'rayon', 'weekNo', 'monthName');
     }
 
     public function exportExcel(Request $request)
@@ -122,68 +147,16 @@ class VisitReportController extends Controller
         return view('reports.export_pdf', $data);
     }
 
-    public function exportGsheets(Request $request)
+    public function exportGsheets(Request $request): View
     {
         $data = $this->getReportExportData($request);
-        $filename = 'Rencana_dan_Realisasi_Kunjungan_GSheets_' . $data['startDate'] . '_sd_' . $data['endDate'] . '.csv';
-
-        return response()->streamDownload(function () use ($data) {
-            $handle = fopen('php://output', 'w');
-            fwrite($handle, "\xEF\xBB\xBF");
-
-            fputcsv($handle, ['FIELD FORCE', $data['fieldForce'], '', 'MINGGU KE', $data['weekNo']]);
-            fputcsv($handle, ['RAYON', $data['rayon'], '', 'BULAN', $data['monthName']]);
-            fputcsv($handle, []);
-
-            fputcsv($handle, [
-                'Hari/Tanggal',
-                'Rencana Customer',
-                'Rencana Target',
-                'Keterangan',
-                'Hasil Customer',
-                'Pejabat Nama',
-                'Pejabat Jabatan',
-                'Hasil Kunjungan',
-                'Tindak Lanjut'
-            ]);
-
-            foreach ($data['plans'] as $plan) {
-                $report = $plan->visitReport;
-                $dayDate = \Carbon\Carbon::parse($plan->planned_date)->translatedFormat('l, d F Y');
-
-                fputcsv($handle, [
-                    $dayDate,
-                    $plan->customer->customer_name ?? '—',
-                    $plan->specific_objective ?? '—',
-                    $plan->resource_notes ?? '—',
-                    $report ? ($plan->customer->customer_name ?? '—') : '—',
-                    $report ? ($report->submitter->full_name ?? '—') : '—',
-                    $report ? 'Submitter' : '—',
-                    $report ? ($report->outcome_summary ?? 'Belum Ada Laporan') : 'Belum Ada Laporan',
-                    $report ? ($report->next_step_summary ?? '—') : '—'
-                ]);
-            }
-
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ]);
+        return view('reports.export_gsheets', $data);
     }
 
-    public function exportGdocs(Request $request)
+    public function exportGdocs(Request $request): View
     {
         $data = $this->getReportExportData($request);
-        $filename = 'Rencana_dan_Realisasi_Kunjungan_GDocs_' . $data['startDate'] . '_sd_' . $data['endDate'] . '.doc';
-
-        return response()->streamDownload(function () use ($data) {
-            echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Laporan Kunjungan</title></head><body>";
-            echo view('reports.export_table', $data)->render();
-            echo "</body></html>";
-        }, $filename, [
-            'Content-Type' => 'application/msword; charset=utf-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ]);
+        return view('reports.export_gdocs', $data);
     }
 
     public function create(Request $request): View|RedirectResponse
@@ -297,6 +270,63 @@ class VisitReportController extends Controller
             ->with('success', 'Laporan kunjungan ' . $report->report_number . ' berhasil disimpan!');
     }
 
+    public function edit(VisitReport $visitReport): View|RedirectResponse
+    {
+        $this->authorize('view', $visitReport);
+
+        $visitPlan = $visitReport->visitPlan->load(['customer', 'area', 'members', 'owner']);
+        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+
+        return view('reports.edit', compact('visitReport', 'visitPlan', 'teamUsers'));
+    }
+
+    public function update(Request $request, VisitReport $visitReport): RedirectResponse
+    {
+        $this->authorize('view', $visitReport);
+
+        $validated = $request->validate([
+            'actual_start_at' => ['required', 'date'],
+            'actual_end_at' => ['required', 'date', 'after:actual_start_at'],
+            'outcome_summary' => ['required', 'string', 'max:2000'],
+            'outcome_type' => ['required', 'string'],
+            'engagement_score' => ['required', 'integer', 'between:1,5'],
+            'attendance_summary' => ['required', 'string', 'max:1000'],
+            'barrier' => ['nullable', 'string', 'max:2000'],
+            'need_or_opportunity' => ['nullable', 'string', 'max:2000'],
+            'competitor_information' => ['nullable', 'string', 'max:2000'],
+            'next_step_summary' => ['required', 'string', 'max:2000'],
+        ], [
+            'actual_end_at.after' => 'Waktu selesai kunjungan aktual tidak boleh sebelum waktu mulai.',
+            'engagement_score.between' => 'Skor keterikatan (engagement) harus diisi antara 1 sampai 5.',
+        ]);
+
+        $before = $visitReport->toArray();
+
+        $visitReport->update([
+            'actual_start_at' => $validated['actual_start_at'],
+            'actual_end_at' => $validated['actual_end_at'],
+            'outcome_summary' => $validated['outcome_summary'],
+            'outcome_type' => $validated['outcome_type'],
+            'engagement_score' => $validated['engagement_score'],
+            'attendance_summary' => $validated['attendance_summary'],
+            'barrier' => $validated['barrier'] ?? null,
+            'need_or_opportunity' => $validated['need_or_opportunity'] ?? null,
+            'competitor_information' => $validated['competitor_information'] ?? null,
+            'next_step_summary' => $validated['next_step_summary'],
+        ]);
+
+        $visitPlan = $visitReport->visitPlan;
+        $visitPlan->actual_start_at = $validated['actual_start_at'];
+        $visitPlan->actual_end_at = $validated['actual_end_at'];
+        $visitPlan->updated_by = Auth::id();
+        $visitPlan->save();
+
+        AuditLogger::log('UPDATE_VISIT_REPORT', 'VISIT_REPORT', $visitReport->id, $before, $visitReport->toArray());
+
+        return redirect()->route('reports.show', $visitReport->id)
+            ->with('success', 'Laporan kunjungan ' . $visitReport->report_number . ' berhasil diperbarui!');
+    }
+
     public function show(VisitReport $visitReport): View
     {
         $this->authorize('view', $visitReport);
@@ -315,3 +345,8 @@ class VisitReportController extends Controller
         return view('reports.show', compact('visitReport'));
     }
 }
+
+
+
+
+

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Enums\PriorityTier;
 use App\Http\Controllers\Controller;
@@ -40,16 +40,18 @@ class CustomerController extends Controller
         $segments = Segment::where('is_active', true)->get();
         $users = User::where('is_active', true)->orderBy('full_name')->get();
 
-        return view('admin.customers.index', compact('customers', 'search', 'areaId', 'segmentId', 'tier', 'areas', 'segments', 'users'));
+        return view('customers.index', compact('customers', 'search', 'areaId', 'segmentId', 'tier', 'areas', 'segments', 'users'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'customer_code' => ['required', 'string', 'max:50', 'unique:customers,customer_code'],
+            
             'customer_name' => ['required', 'string', 'max:255'],
-            'area_id' => ['required', 'exists:areas,id'],
-            'segment_id' => ['required', 'exists:segments,id'],
+            'instansi' => ['nullable', 'string', 'max:255'],
+            'satuan' => ['nullable', 'string', 'max:255'],
+            
+            
             'owner_id' => ['required', 'exists:users,id'],
             'address' => ['required', 'string', 'max:500'],
             'city' => ['required', 'string', 'max:100'],
@@ -57,6 +59,8 @@ class CustomerController extends Controller
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_pangkat' => ['nullable', 'string', 'max:255'],
+            'contact_letting' => ['nullable', 'string', 'max:255'],
             'contact_position' => ['nullable', 'string', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'contact_email' => ['nullable', 'email', 'max:255'],
@@ -85,8 +89,10 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'customer_code' => ['required', 'string', 'max:50', Rule::unique('customers')->ignore($customer->id)],
             'customer_name' => ['required', 'string', 'max:255'],
-            'area_id' => ['required', 'exists:areas,id'],
-            'segment_id' => ['required', 'exists:segments,id'],
+            'instansi' => ['nullable', 'string', 'max:255'],
+            'satuan' => ['nullable', 'string', 'max:255'],
+            
+            
             'owner_id' => ['required', 'exists:users,id'],
             'address' => ['required', 'string', 'max:500'],
             'city' => ['required', 'string', 'max:100'],
@@ -94,6 +100,8 @@ class CustomerController extends Controller
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_pangkat' => ['nullable', 'string', 'max:255'],
+            'contact_letting' => ['nullable', 'string', 'max:255'],
             'contact_position' => ['nullable', 'string', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'contact_email' => ['nullable', 'email', 'max:255'],
@@ -127,3 +135,7 @@ class CustomerController extends Controller
         return back()->with('success', 'Customer ' . $customer->customer_name . ' berhasil ' . $statusText . '.');
     }
 }
+
+
+
+

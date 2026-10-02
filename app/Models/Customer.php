@@ -15,7 +15,7 @@ class Customer extends Model
 
     protected $fillable = [
         'customer_code',
-        'customer_name',
+        'customer_name', 'instansi', 'satuan', 'contact_pangkat', 'contact_letting',
         'area_id',
         'segment_id',
         'owner_id',
@@ -82,3 +82,4 @@ class Customer extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 }
+

@@ -813,7 +813,7 @@ textarea.form-control { min-height: 80px; resize: vertical; }
     font-size: 14px;
 }
 
-.samara-table thead th {
+.samara-table thead th { position: sticky; top: 0; z-index: 10; outline: 1px solid var(--border);
     background-color: var(--surface-soft);
     color: var(--text-secondary);
     font-weight: 700;
@@ -1094,7 +1094,7 @@ html.dark .kpi-card {
     border-color: var(--border);
 }
 
-html.dark .samara-table thead th {
+html.dark .samara-table thead th { position: sticky; top: 0; z-index: 10; outline: 1px solid var(--border);
     background: var(--surface-soft);
     color: var(--text-secondary);
 }
@@ -1544,4 +1544,63 @@ html.dark .monthly-calendar-cell.is-today {
     }
 }
 
+
+
+/* ============================================================
+   Pagination Fixes (Laravel Default Tailwind View)
+   ============================================================ */
+nav[role="navigation"] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+nav[role="navigation"] > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+nav[role="navigation"] svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block;
+}
+nav[role="navigation"] a, nav[role="navigation"] span.relative {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text);
+    background: var(--surface);
+    transition: all 0.2s;
+}
+nav[role="navigation"] a:hover {
+    background: var(--surface-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+nav[role="navigation"] span[aria-current="page"] span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: #ffffff;
+}
+nav[role="navigation"] p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
 

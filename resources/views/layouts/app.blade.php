@@ -87,6 +87,12 @@
                     <span>Dashboard</span>
                 </a>
 
+                <a href="{{ route('customers.index') }}"
+                   class="sidebar-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    <span>Customers</span>
+                </a>
+
                 @if(auth()->user()->isAdmin() || auth()->user()->isDirector())
                 <a href="{{ route('director.review') }}"
                    class="sidebar-link {{ request()->routeIs('director.*') ? 'active' : '' }}">
@@ -572,7 +578,7 @@
                 if (submitBtn && !form.dataset.allowMultiple) {
                     setTimeout(function() {
                         submitBtn.disabled = true;
-                        submitBtn.textContent = 'Menyimpan...';
+                        submitBtn.textContent = form.method.toUpperCase() === 'GET' ? 'Memuat...' : 'Menyimpan...';
                     }, 10);
                 }
             });
@@ -619,3 +625,4 @@
 
 </body>
 </html>
+

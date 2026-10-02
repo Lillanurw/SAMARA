@@ -5,8 +5,11 @@
 @section('page_subtitle', $visitReport->report_number . ' - ' . $visitReport->visitPlan->customer->customer_name)
 
 @section('content')
-<div style="margin-bottom: 20px;">
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
     <a href="{{ route('reports.index') }}" class="btn btn-secondary">← Kembali ke Daftar Laporan</a>
+    @if(auth()->id() === $visitReport->submitted_by || auth()->user()->isAdmin())
+        <a href="{{ route('reports.edit', $visitReport->id) }}" class="btn btn-primary">✏️ Edit Laporan</a>
+    @endif
 </div>
 
 <div class="grid grid-3">

@@ -24,14 +24,9 @@
             <td style="width: 200px; vertical-align: top; border: none; padding: 0;">
                 <table style="width: 100%; border-collapse: collapse; border: none;">
                     <tr>
-                        <td style="width: 75px; text-align: left; vertical-align: top; border: none; padding: 2px 0;">MINGGU KE</td>
+                        <td style="width: 75px; text-align: left; vertical-align: top; border: none; padding: 2px 0;">PERIODE</td>
                         <td style="width: 15px; text-align: center; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                        <td style="text-align: left; vertical-align: top; border: none; padding: 2px 0;">{{ $weekNo }}</td>
-                    </tr>
-                    <tr>
-                        <td style="width: 75px; text-align: left; vertical-align: top; border: none; padding: 2px 0;">BULAN</td>
-                        <td style="width: 15px; text-align: center; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                        <td style="text-align: left; vertical-align: top; border: none; padding: 2px 0;">{{ strtoupper($monthName) }}</td>
+                        <td style="text-align: left; vertical-align: top; border: none; padding: 2px 0;">{{ strtoupper($carbonStart->translatedFormat('d F Y')) }} - {{ strtoupper($carbonEnd->translatedFormat('d F Y')) }}</td>
                     </tr>
                 </table>
             </td>
@@ -111,3 +106,4 @@
         </tbody>
     </table>
 </div>
+
