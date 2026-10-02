@@ -14,11 +14,7 @@
                         <td style="width: 15px; text-align: center; vertical-align: top; border: none; padding: 2px 0;">:</td>
                         <td style="text-align: left; vertical-align: top; border: none; padding: 2px 0;">{{ strtoupper($fieldForce) }}</td>
                     </tr>
-                    <tr>
-                        <td style="width: 90px; text-align: left; vertical-align: top; border: none; padding: 2px 0;">RAYON</td>
-                        <td style="width: 15px; text-align: center; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                        <td style="text-align: left; vertical-align: top; border: none; padding: 2px 0;">{{ strtoupper($rayon) }}</td>
-                    </tr>
+
                 </table>
             </td>
             <td style="width: 200px; vertical-align: top; border: none; padding: 0;">
@@ -106,4 +102,5 @@
         </tbody>
     </table>
 </div>
+
 
