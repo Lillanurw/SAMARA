@@ -20,7 +20,7 @@
 
         <div class="table-responsive" style="max-height: calc(100vh - 220px); overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm);">
             <table class="samara-table" style="border: 1px solid var(--border);">
-                <th style="border: 1px solid var(--border);"ead>
+                <thead>
                     <tr>
                         <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Kode & Customer</th>
                         <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Instansi & Satuan</th>
@@ -38,6 +38,10 @@
                             <td style="border: 1px solid var(--border);">
                                 <div style="font-weight: 700; color: var(--navy);">{{ $c->customer_name }}</div>
                                 <div style="font-size: 11px; color: var(--muted);">{{ $c->customer_code }}</div>
+                            </td>
+                            <td style="border: 1px solid var(--border);">
+                                <div style="font-weight: 600;">{{ $c->instansi ?? '-' }}</div>
+                                <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">{{ $c->satuan ?? '-' }}</div>
                             </td>
                             
                             <td style="border: 1px solid var(--border);">{{ $c->city }}, {{ $c->province }}</td>
@@ -333,6 +337,8 @@
     });
 </script>
 @endpush
+
+
 
 
 
