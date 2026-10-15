@@ -27,7 +27,7 @@
                 @forelse($reportsNeedingAttention as $rep)
                     <div class="agenda-item" style="margin-bottom:12px;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                            <h4 style="font-weight:700; font-size:15px; color:var(--primary);">
+                            <h4 style="font-weight:700; font-size:15px; color:var(--heading);">
                                 {{ $rep->visitPlan->customer->customer_name ?? '—' }}
                             </h4>
                             <span class="badge badge-gold">★ {{ $rep->engagement_score }}/5</span>
@@ -98,7 +98,7 @@
                     <input type="hidden" name="visit_report_id" x-model="selectedReportId">
 
                     <div x-show="selectedCustomer"
-                         style="padding:10px 14px; background:var(--accent-soft); border-radius:var(--radius-sm); margin-bottom:16px; font-size:13px; font-weight:600; color:var(--primary); border-left:3px solid var(--accent);"
+                         style="padding:10px 14px; background:var(--accent-soft); border-radius:var(--radius-sm); margin-bottom:16px; font-size:13px; font-weight:600; color:var(--heading); border-left:3px solid var(--accent);"
                          x-cloak>
                         Arahan terkait: <span x-text="selectedCustomer"></span>
                     </div>
@@ -189,7 +189,7 @@
                 @forelse($recentInputs as $input)
                     <div style="padding:12px 0; border-bottom:1px solid var(--border);">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
-                            <div style="font-weight:700; font-size:13px; color:var(--primary); flex:1; margin-right:8px;">
+                            <div style="font-weight:700; font-size:13px; color:var(--heading); flex:1; margin-right:8px;">
                                 {{ $input->topic }}
                             </div>
                             @php

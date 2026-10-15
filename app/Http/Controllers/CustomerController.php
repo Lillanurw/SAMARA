@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PriorityTier;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Area;
 use App\Models\Customer;
@@ -38,7 +39,7 @@ class CustomerController extends Controller
 
         $areas = Area::where('is_active', true)->get();
         $segments = Segment::where('is_active', true)->get();
-        $users = User::where('is_active', true)->orderBy('full_name')->get();
+        $users = User::salesAssignable()->orderBy('full_name')->get();
 
         return view('customers.index', compact('customers', 'search', 'areaId', 'segmentId', 'tier', 'areas', 'segments', 'users'));
     }
@@ -46,13 +47,16 @@ class CustomerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            
+            'customer_code' => ['nullable', 'string', 'max:50', 'unique:customers,customer_code'],
             'customer_name' => ['required', 'string', 'max:255'],
             'instansi' => ['nullable', 'string', 'max:255'],
             'satuan' => ['nullable', 'string', 'max:255'],
-            
-            
-            'owner_id' => ['required', 'exists:users,id'],
+            'area_id' => ['nullable', 'exists:areas,id'],
+            'segment_id' => ['nullable', 'exists:segments,id'],
+            'owner_id' => [
+                'required',
+                Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)->where('role', '!=', UserRole::DIREKTUR_UTAMA->value)),
+            ],
             'address' => ['required', 'string', 'max:500'],
             'city' => ['required', 'string', 'max:100'],
             'province' => ['required', 'string', 'max:100'],
@@ -70,9 +74,23 @@ class CustomerController extends Controller
         ], [
             'customer_code.unique' => 'Kode customer ini sudah digunakan.',
             'customer_name.required' => 'Nama customer wajib diisi.',
+            'owner_id.exists' => 'Pengguna yang dipilih tidak valid.',
             'area_id.required' => 'Area wajib dipilih.',
             'segment_id.required' => 'Segment wajib dipilih.',
         ]);
+
+        if (empty($validated['customer_code'])) {
+            $nextId = (Customer::max('id') ?? 0) + 1;
+            $validated['customer_code'] = 'CUST-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        }
+
+        if (empty($validated['area_id'])) {
+            $validated['area_id'] = Area::where('is_active', true)->value('id') ?? 1;
+        }
+
+        if (empty($validated['segment_id'])) {
+            $validated['segment_id'] = Segment::where('is_active', true)->value('id') ?? 1;
+        }
 
         $validated['is_active'] = !empty($validated['is_active']);
         $validated['created_by'] = Auth::id();
@@ -91,9 +109,12 @@ class CustomerController extends Controller
             'customer_name' => ['required', 'string', 'max:255'],
             'instansi' => ['nullable', 'string', 'max:255'],
             'satuan' => ['nullable', 'string', 'max:255'],
-            
-            
-            'owner_id' => ['required', 'exists:users,id'],
+            'area_id' => ['nullable', 'exists:areas,id'],
+            'segment_id' => ['nullable', 'exists:segments,id'],
+            'owner_id' => [
+                'required',
+                Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)->where('role', '!=', UserRole::DIREKTUR_UTAMA->value)),
+            ],
             'address' => ['required', 'string', 'max:500'],
             'city' => ['required', 'string', 'max:100'],
             'province' => ['required', 'string', 'max:100'],
@@ -108,6 +129,8 @@ class CustomerController extends Controller
             'priority_tier' => ['required', 'string'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['nullable', 'boolean'],
+        ], [
+            'owner_id.exists' => 'Pengguna yang dipilih tidak valid.',
         ]);
 
         $before = $customer->toArray();

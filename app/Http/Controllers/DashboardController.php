@@ -134,7 +134,7 @@ class DashboardController extends Controller
             : $user->areas()->where('is_active', true)->get();
 
         $segments = Segment::where('is_active', true)->get();
-        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = User::salesAssignable()->orderBy('full_name')->get();
 
         return view('dashboard.index', compact(
             'type',

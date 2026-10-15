@@ -7,7 +7,7 @@
 @push('styles')
 <style>
 .profile-card {
-    background: var(--card);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 32px;
@@ -29,23 +29,23 @@
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--primary);
-    box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .profile-avatar-initials {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark, #4338ca));
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 32px;
     font-weight: 700;
     color: #fff;
-    border: 3px solid var(--primary);
-    box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
     letter-spacing: 1px;
 }
 
@@ -53,9 +53,9 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--surface);
+    background: var(--surface-soft);
     border: 1px dashed var(--border);
-    color: var(--text-muted);
+    color: var(--text-soft);
     padding: 7px 16px;
     border-radius: var(--radius-md);
     font-size: 13px;
@@ -63,8 +63,8 @@
     transition: border-color 0.2s, color 0.2s;
 }
 .profile-upload-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .form-group {
@@ -75,7 +75,7 @@
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--text-soft);
     margin-bottom: 6px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -83,8 +83,8 @@
 
 .form-input {
     width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
     color: var(--text);
     padding: 10px 14px;
     border-radius: var(--radius-md);
@@ -94,19 +94,20 @@
     box-sizing: border-box;
 }
 .form-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .form-input[readonly] {
-    opacity: 0.55;
+    opacity: 0.7;
+    background: var(--surface-soft);
     cursor: not-allowed;
 }
 
 .alert-success {
-    background: rgba(16,185,129,0.1);
-    border: 1px solid rgba(16,185,129,0.3);
-    color: #059669;
+    background: var(--success-soft);
+    border: 1px solid var(--border);
+    color: var(--success);
     padding: 12px 16px;
     border-radius: var(--radius-md);
     font-size: 14px;
@@ -117,8 +118,8 @@
 }
 
 .alert-danger {
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.3);
+    background: var(--danger-soft);
+    border: 1px solid var(--border);
     color: var(--danger);
     padding: 12px 16px;
     border-radius: var(--radius-md);
@@ -194,6 +195,18 @@
                    @change="previewImage($event)">
 
             <span style="font-size:11px; color:var(--text-muted);">JPG, PNG, GIF, WEBP — Maks. 2 MB</span>
+        </div>
+
+        {{-- Honorific --}}
+        <div class="form-group">
+            <label class="form-label" for="honorific">Sapaan (Opsional)</label>
+            <input type="text"
+                   name="honorific"
+                   id="honorific"
+                   class="form-input"
+                   value="{{ old('honorific', $user->honorific) }}"
+                   maxlength="20"
+                   placeholder="Contoh: Bpk, Ibu">
         </div>
 
         {{-- Full Name --}}

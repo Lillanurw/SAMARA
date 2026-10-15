@@ -27,6 +27,11 @@ class CheckRole
         $allowedRoles = array_map(fn($r) => strtoupper(trim($r)), $roles);
 
         if (!in_array($userRole, $allowedRoles)) {
+            if ($user->isDirut()) {
+                return redirect()->route('dirut.dashboard')
+                    ->with('error', 'Halaman ini tidak tersedia untuk Direktur Utama.');
+            }
+
             abort(403, 'Anda tidak memiliki izin untuk membuka halaman ini.');
         }
 

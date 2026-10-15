@@ -21,7 +21,7 @@
             <table class="samara-table" style="margin-bottom: 24px;">
                 <tr>
                     <td style="width: 200px; font-weight: 600; color: var(--text-secondary);">Customer</td>
-                    <td style="font-weight: 700; color: var(--primary);">{{ $visitPlan->customer->customer_name }} ({{ $visitPlan->customer->customer_code }})</td>
+                    <td style="font-weight: 700; color: var(--heading);">{{ $visitPlan->customer->customer_name }} ({{ $visitPlan->customer->customer_code }})</td>
                 </tr>
                 <tr>
                     <td style="font-weight: 600; color: var(--text-secondary);">Area & Segment</td>
@@ -46,18 +46,18 @@
             </table>
 
             <div style="margin-bottom: 20px;">
-                <h4 style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">Tujuan Bulanan (Monthly Objective):</h4>
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 6px;">Tujuan Bulanan (Monthly Objective):</h4>
                 <p style="background: var(--surface-soft); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">{{ $visitPlan->monthly_objective }}</p>
             </div>
 
             <div style="margin-bottom: 20px;">
-                <h4 style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">Tujuan Spesifik Kunjungan (Specific Objective):</h4>
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 6px;">Tujuan Spesifik Kunjungan (Specific Objective):</h4>
                 <p style="background: var(--surface-soft); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">{{ $visitPlan->specific_objective }}</p>
             </div>
 
             @if($visitPlan->resource_notes)
                 <div style="margin-bottom: 20px;">
-                    <h4 style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">Peralatan / Resources:</h4>
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 6px;">Peralatan / Resources:</h4>
                     <p style="background: var(--surface-soft); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">{{ $visitPlan->resource_notes }}</p>
                 </div>
             @endif
@@ -116,7 +116,7 @@
 
             <div style="margin-bottom: 12px;">
                 <div style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">Kontak Person Customer:</div>
-                <div style="font-weight: 700; color: var(--primary);">{{ $visitPlan->customer->contact_name ?? '-' }}</div>
+                <div style="font-weight: 700; color: var(--heading);">{{ $visitPlan->customer->contact_name ?? '-' }}</div>
                 <div style="font-size: 12px; color: var(--text-secondary);">{{ $visitPlan->customer->contact_position ?? '-' }}</div>
                 <div style="font-size: 12px; color: var(--text-secondary);">📞 {{ $visitPlan->customer->contact_phone ?? '-' }}</div>
             </div>
@@ -124,8 +124,8 @@
     </div>
 
     <!-- Modal Cancel -->
-    <div x-show="cancelModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px;" @click.away="cancelModal = false">
+    <div x-show="cancelModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px;" @click.away="cancelModal = false">
             <h3 style="font-weight: 800; margin-bottom: 14px; color: var(--danger);">Batalkan Rencana Kunjungan</h3>
             <form action="{{ route('plans.cancel', $visitPlan->id) }}" method="POST">
                 @csrf
@@ -143,9 +143,9 @@
     </div>
 
     <!-- Modal Reschedule -->
-    <div x-show="rescheduleModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px;" @click.away="rescheduleModal = false">
-            <h3 style="font-weight: 800; margin-bottom: 14px; color: var(--primary);">Jadwalkan Ulang Kunjungan</h3>
+    <div x-show="rescheduleModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px;" @click.away="rescheduleModal = false">
+            <h3 style="font-weight: 800; margin-bottom: 14px; color: var(--heading);">Jadwalkan Ulang Kunjungan</h3>
             <form action="{{ route('plans.reschedule', $visitPlan->id) }}" method="POST">
                 @csrf
                 @method('PATCH')
@@ -172,10 +172,10 @@
     </div>
 
     <!-- Modal Edit Rencana Kunjungan -->
-    <div x-show="editModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-hover);" @click.away="editModal = false">
+    <div x-show="editModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-hover);" @click.away="editModal = false">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
-                <h3 style="font-weight: 800; font-size: 18px; color: var(--primary);">Edit Rencana Kunjungan</h3>
+                <h3 style="font-weight: 800; font-size: 18px; color: var(--heading);">Edit Rencana Kunjungan</h3>
                 <button type="button" @click="editModal = false" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             </div>
 

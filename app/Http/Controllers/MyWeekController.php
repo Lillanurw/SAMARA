@@ -57,7 +57,7 @@ class MyWeekController extends Controller
             })
             ->get();
 
-        $teamUsers = \App\Models\User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = \App\Models\User::salesAssignable()->orderBy('full_name')->get();
 
         return view('weekly.index', compact('days', 'startDate', 'endDate', 'customers', 'teamUsers'));
     }

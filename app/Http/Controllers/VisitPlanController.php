@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ActivityType;
 use App\Enums\PlanStatus;
 use App\Enums\PriorityLevel;
+use App\Enums\UserRole;
 use App\Models\Area;
 use App\Models\Customer;
 use App\Models\Segment;
@@ -16,6 +17,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class VisitPlanController extends Controller
@@ -83,7 +85,7 @@ class VisitPlanController extends Controller
             })
             ->get();
 
-        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = User::salesAssignable()->orderBy('full_name')->get();
 
         return view('plans.index', compact(
             'plans', 'month', 'areaId', 'segmentId', 'priority', 'ownerId',
@@ -106,11 +108,14 @@ class VisitPlanController extends Controller
             'resource_notes' => ['nullable', 'string', 'max:1000'],
             'location_text' => ['nullable', 'string', 'max:255'],
             'members' => ['nullable', 'array'],
-            'members.*' => ['exists:users,id'],
+            'members.*' => [
+                Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)->where('role', '!=', UserRole::DIREKTUR_UTAMA->value)),
+            ],
         ], [
             'end_time.after' => 'Waktu selesai tidak boleh sebelum atau sama dengan waktu mulai.',
             'customer_id.required' => 'Customer wajib dipilih.',
             'planned_date.required' => 'Tanggal rencana kunjungan wajib diisi.',
+            'members.*.exists' => 'Pengguna yang dipilih tidak valid.',
         ]);
 
         $customer = Customer::findOrFail($validated['customer_id']);
@@ -176,7 +181,7 @@ class VisitPlanController extends Controller
             })
             ->get();
 
-        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = User::salesAssignable()->orderBy('full_name')->get();
 
         return view('plans.show', compact('visitPlan', 'customers', 'teamUsers'));
     }
@@ -197,11 +202,14 @@ class VisitPlanController extends Controller
             'resource_notes' => ['nullable', 'string', 'max:1000'],
             'location_text' => ['nullable', 'string', 'max:255'],
             'members' => ['nullable', 'array'],
-            'members.*' => ['exists:users,id'],
+            'members.*' => [
+                Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)->where('role', '!=', UserRole::DIREKTUR_UTAMA->value)),
+            ],
         ], [
             'end_time.after' => 'Waktu selesai tidak boleh sebelum atau sama dengan waktu mulai.',
             'customer_id.required' => 'Customer wajib dipilih.',
             'planned_date.required' => 'Tanggal rencana kunjungan wajib diisi.',
+            'members.*.exists' => 'Pengguna yang dipilih tidak valid.',
         ]);
 
         $customer = Customer::findOrFail($validated['customer_id']);

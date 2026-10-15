@@ -31,17 +31,17 @@
                         <td style="white-space: nowrap; font-weight: 600;">{{ $log->created_at ? $log->created_at->format('Y-m-d H:i:s') : '-' }}</td>
                         <td>
                             <div style="font-weight: 700;">{{ $log->actor->full_name ?? 'System' }}</div>
-                            <div style="font-size: 11px; color: var(--muted);">{{ $log->actor->email ?? '-' }}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">{{ $log->actor->email ?? '-' }}</div>
                         </td>
                         <td><span class="badge badge-primary" style="font-size: 11px;">{{ $log->action }}</span></td>
                         <td>{{ $log->entity_type }} #{{ $log->entity_id ?? '-' }}</td>
-                        <td style="font-size: 11px; color: var(--muted);">
+                        <td style="font-size: 11px; color: var(--text-muted);">
                             {{ $log->ip_address }}<br>
                             {{ Str::limit($log->user_agent, 40) }}
                         </td>
                         <td>
                             @if($log->metadata)
-                                <pre style="font-size: 10px; background: #F8FAFC; padding: 4px; border-radius: 4px; max-width: 250px; overflow-x: auto;">{{ json_encode($log->metadata, JSON_PRETTY_PRINT) }}</pre>
+                                <pre style="font-size: 10px; background: var(--surface-soft); color: var(--text); border: 1px solid var(--border); padding: 4px; border-radius: 4px; max-width: 250px; overflow-x: auto;">{{ json_encode($log->metadata, JSON_PRETTY_PRINT) }}</pre>
                             @else
                                 -
                             @endif

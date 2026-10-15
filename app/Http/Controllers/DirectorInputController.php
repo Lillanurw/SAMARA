@@ -5,17 +5,20 @@ namespace App\Http\Controllers;
 use App\Enums\DirectorInputStatus;
 use App\Enums\DirectorInputType;
 use App\Enums\PriorityLevel;
+use App\Enums\UserRole;
 use App\Models\Customer;
 use App\Models\DirectorInput;
 use App\Models\User;
 use App\Models\VisitReport;
 use App\Notifications\DirectorInputCreatedNotification;
+use App\Services\WebPushService;
 use App\Support\AuditLogger;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class DirectorInputController extends Controller
@@ -38,7 +41,7 @@ class DirectorInputController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->paginate(10);
 
-        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = User::salesAssignable()->orderBy('full_name')->get();
 
         $recentInputs = DirectorInput::with(['visitReport.visitPlan.customer', 'assignedUser', 'creator'])
             ->orderBy('created_at', 'desc')
@@ -62,13 +65,17 @@ class DirectorInputController extends Controller
             'topic' => ['required', 'string', 'max:255'],
             'input_type' => ['required', 'string'],
             'direction_text' => ['required', 'string', 'max:2000'],
-            'assigned_to' => ['required', 'exists:users,id'],
+            'assigned_to' => [
+                'required',
+                Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)->where('role', '!=', UserRole::DIREKTUR_UTAMA->value)),
+            ],
             'due_date' => ['required', 'date'],
             'priority' => ['required', 'string'],
         ], [
             'topic.required' => 'Topik arahan wajib diisi.',
             'direction_text.required' => 'Isi arahan Director wajib diisi.',
             'assigned_to.required' => 'Penanggung jawab (PIC) wajib dipilih.',
+            'assigned_to.exists' => 'Pengguna yang dipilih tidak valid.',
             'due_date.required' => 'Tenggat waktu wajib diisi.',
         ]);
 
@@ -111,6 +118,22 @@ class DirectorInputController extends Controller
             // Notify report submitter if distinct from assigned PIC
             if ($report && $report->submitter && $report->submitter->id !== $assignedUser?->id) {
                 $report->submitter->notify(new DirectorInputCreatedNotification($direction));
+            }
+
+            // Send WebPush to mobile devices
+            $webPushService = app(WebPushService::class);
+            $creatorName = $user->full_name ?? 'Direktur SMD';
+            $priorityVal = is_object($direction->priority) ? ($direction->priority->value ?? (string) $direction->priority) : (string) $direction->priority;
+            $pushTitle = "Arahan Baru dari {$creatorName}";
+            $pushBody = "Topik: {$direction->topic}\nPrioritas: {$priorityVal}";
+            $pushUrl = route('directions.myDirections');
+
+            if ($assignedUser) {
+                $webPushService->sendToUser($assignedUser, $pushTitle, $pushBody, $pushUrl);
+            }
+
+            if ($report && $report->submitter && $report->submitter->id !== $assignedUser?->id) {
+                $webPushService->sendToUser($report->submitter, $pushTitle, $pushBody, $pushUrl);
             }
         });
 

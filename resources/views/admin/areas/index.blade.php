@@ -8,7 +8,7 @@
 <div x-data="{ addModal: false }">
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="font-size: 16px; font-weight: 700; color: var(--navy);">Daftar Wilayah Operasional</h3>
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--heading);">Daftar Wilayah Operasional</h3>
             <button type="button" @click="addModal = true" class="btn btn-primary">➕ Tambah Area</button>
         </div>
 
@@ -27,7 +27,7 @@
                 <tbody>
                     @foreach($areas as $ar)
                         <tr>
-                            <td style="font-weight: 700; color: var(--navy);">{{ $ar->area_code }}</td>
+                            <td style="font-weight: 700; color: var(--heading);">{{ $ar->area_code }}</td>
                             <td style="font-weight: 600;">{{ $ar->area_name }}</td>
                             <td>{{ $ar->region }}</td>
                             <td><span class="badge badge-primary">{{ $ar->customers_count }} Customer</span></td>
@@ -47,9 +47,9 @@
     </div>
 
     <!-- Modal Tambah Area -->
-    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 480px; border-radius: var(--radius); padding: 24px;" @click.away="addModal = false">
-            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--navy);">Tambah Area Baru</h3>
+    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-lg);" @click.away="addModal = false">
+            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--heading);">Tambah Area Baru</h3>
             <form action="{{ route('admin.areas.store') }}" method="POST">
                 @csrf
                 <div class="form-group">

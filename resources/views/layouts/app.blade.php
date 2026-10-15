@@ -42,7 +42,7 @@
     <aside class="samara-sidebar" aria-label="Sidebar Navigation">
         <div>
             {{-- Brand / Logo --}}
-            <a href="{{ route('home') }}" class="sidebar-brand" style="background: #ffffff; padding: 10px 14px; border-radius: var(--radius-md); box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <a href="{{ auth()->user()->isDirut() ? route('dirut.dashboard') : route('home') }}" class="sidebar-brand" style="background: #ffffff; padding: 10px 14px; border-radius: var(--radius-md); box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                 <img src="{{ asset('images/logo.png') }}" alt="SAMARA - Sales and Marketing Activity Reporting and Analytics" style="width: 100%; max-width: 210px; height: auto; display: block;">
             </a>
 
@@ -50,6 +50,7 @@
             <nav class="sidebar-menu" aria-label="Main Navigation">
                 <div class="sidebar-menu-label">Menu Utama</div>
 
+                @if(!auth()->user()->isDirut())
                 <a href="{{ route('home') }}"
                    class="sidebar-link {{ request()->routeIs('home') ? 'active' : '' }}"
                    aria-current="{{ request()->routeIs('home') ? 'page' : 'false' }}">
@@ -106,6 +107,21 @@
                    class="sidebar-link {{ request()->routeIs('directions.*') ? 'active' : '' }}">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     <span>Arahan Saya</span>
+                </a>
+                @endif
+                @endif
+
+                @if(auth()->user()->isDirut())
+                <div class="sidebar-menu-label" style="margin-top: 14px;">Direktur Utama</div>
+                <a href="{{ route('dirut.dashboard') }}"
+                   class="sidebar-link {{ request()->routeIs('dirut.dashboard') ? 'active' : '' }}">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Dirut Dashboard</span>
+                </a>
+                <a href="{{ route('agenda.index') }}"
+                   class="sidebar-link {{ request()->routeIs('agenda.*') ? 'active' : '' }}">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Kalender Agenda</span>
                 </a>
                 @endif
 
@@ -170,11 +186,18 @@
                             @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
                                 <form action="{{ route('notifications.readAll') }}" method="POST" style="margin:0;">
                                     @csrf
-                                    <button type="submit" style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:600; cursor:pointer; padding:0;">
+                                    <button type="submit" style="background:none; border:none; color:var(--link); font-size:11px; font-weight:600; cursor:pointer; padding:0;">
                                         Tandai semua dibaca
                                     </button>
                                 </form>
                             @endif
+                        </div>
+
+                        <div style="padding: 8px 16px; background: var(--surface-soft); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 11px; color: var(--text-secondary);">Notifikasi di HP:</span>
+                            <button type="button" onclick="requestNotificationPermission()" class="btn btn-sm btn-outline-primary" id="btn-push-subscribe" style="padding: 2px 8px; font-size: 10px;">
+                                📲 Aktifkan di HP
+                            </button>
                         </div>
 
                         <div style="max-height: 320px; overflow-y: auto;">
@@ -182,7 +205,7 @@
                                 @forelse(auth()->user()->notifications()->take(6)->get() as $notification)
                                     <div style="padding:12px 16px; border-bottom:1px solid var(--border); background: {{ $notification->unread() ? 'var(--accent-soft)' : 'transparent' }}; transition: background 0.2s;">
                                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
-                                            <span style="font-weight:700; font-size:12px; color:var(--primary);">
+                                            <span style="font-weight:700; font-size:12px; color:var(--heading);">
                                                 {{ $notification->data['title'] ?? 'Notifikasi Arahan' }}
                                             </span>
                                             <span style="font-size:10px; color:var(--text-muted);">
@@ -252,7 +275,7 @@
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-size: 12px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         <a href="{{ route('profile.edit') }}" style="color:inherit;text-decoration:none;">
-                            {{ auth()->user()->full_name }}
+                            {{ auth()->user()->display_name }}
                         </a>
                     </div>
                     <span class="user-role-tag">
@@ -273,23 +296,26 @@
          MOBILE TOP BAR (< 1024px)
     ====================================================== --}}
     <header class="mobile-top-bar">
-        <a href="{{ route('home') }}" class="navbar-brand" style="text-decoration:none; background:#ffffff; padding: 4px 8px; border-radius: 6px;">
+        <a href="{{ auth()->user()->isDirut() ? route('dirut.dashboard') : route('home') }}" class="navbar-brand" style="text-decoration:none; background:#ffffff; padding: 4px 8px; border-radius: 6px;">
             <img src="{{ asset('images/logo.png') }}" alt="SAMARA Logo" style="height: 32px; width: auto; display: block;">
         </a>
         <div style="display: flex; gap: 8px; align-items: center;">
             <button type="button" class="theme-toggle" onclick="samaraToggleTheme()">
                 <span id="theme-icon-mobile">🌙</span>
             </button>
-            <a href="{{ route('profile.edit') }}" title="Edit Profil" style="display:flex;align-items:center;text-decoration:none;">
+            <a href="{{ route('profile.edit') }}" title="Edit Profil" style="display:flex;align-items:center;gap:6px;text-decoration:none;max-width:140px;">
                 @if(auth()->user()->profile_picture)
                     <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}"
                          alt="Foto Profil"
-                         style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">
+                         style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);flex-shrink:0;">
                 @else
-                    <div class="user-avatar-circle" style="width:32px; height:32px; font-size:11px;">
+                    <div class="user-avatar-circle" style="width:30px; height:30px; font-size:11px; flex-shrink:0;">
                         {{ strtoupper(substr(auth()->user()->full_name ?? 'U', 0, 2)) }}
                     </div>
                 @endif
+                <span style="font-size:11px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:90px;">
+                    {{ auth()->user()->display_name }}
+                </span>
             </a>
         </div>
     </header>
@@ -316,7 +342,7 @@
                 $latestDirectorNotif = auth()->user()->unreadNotifications->first();
             @endphp
             @if($latestDirectorNotif)
-                <div class="alert alert-warning" style="border-left: 4px solid var(--accent); background: var(--accent-soft); color: var(--primary); display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px;" role="alert">
+                <div class="alert alert-warning" style="border-left: 4px solid var(--accent); background: var(--accent-soft); color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px;" role="alert">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
                         <div>
@@ -376,6 +402,37 @@
          MOBILE BOTTOM NAVIGATION
     ====================================================== --}}
     <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+        @if(auth()->user()->isDirut())
+        <a href="{{ route('dirut.dashboard') }}"
+           id="mobile-nav-dirut-dash"
+           class="mobile-nav-btn {{ request()->routeIs('dirut.dashboard') ? 'active' : '' }}"
+           aria-label="Dirut Dashboard">
+            <span class="mobile-nav-icon" aria-hidden="true">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{{ route('agenda.index') }}"
+           id="mobile-nav-agenda"
+           class="mobile-nav-btn {{ request()->routeIs('agenda.*') ? 'active' : '' }}"
+           aria-label="Kalender Agenda">
+            <span class="mobile-nav-icon" aria-hidden="true">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+            <span>Agenda</span>
+        </a>
+
+        <a href="{{ route('profile.edit') }}"
+           id="mobile-nav-profile"
+           class="mobile-nav-btn {{ request()->routeIs('profile.*') ? 'active' : '' }}"
+           aria-label="Profil">
+            <span class="mobile-nav-icon" aria-hidden="true">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span>Profil</span>
+        </a>
+        @else
         <a href="{{ route('home') }}"
            id="mobile-nav-home"
            class="mobile-nav-btn {{ request()->routeIs('home') ? 'active' : '' }}"
@@ -405,6 +462,7 @@
             </span>
             <span>Report</span>
         </a>
+        @endif
 
         <button type="button"
                 id="mobile-nav-more"
@@ -451,7 +509,44 @@
                         aria-label="Tutup">✕</button>
             </div>
 
+            {{-- Mobile User Profile Card --}}
+            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface-soft); border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 14px;">
+                @if(auth()->user()->profile_picture)
+                    <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}"
+                         alt="Foto Profil"
+                         style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);flex-shrink:0;">
+                @else
+                    <div class="user-avatar-circle" style="width:38px;height:38px;font-size:13px;flex-shrink:0;">
+                        {{ strtoupper(substr(auth()->user()->full_name ?? 'U', 0, 2)) }}
+                    </div>
+                @endif
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ auth()->user()->display_name }}
+                    </div>
+                    <span class="user-role-tag" style="font-size: 10px;">
+                        {{ auth()->user()->role?->value ?? auth()->user()->role }}
+                    </span>
+                </div>
+            </div>
+
             <div style="display: flex; flex-direction: column; gap: 8px;">
+                @if(auth()->user()->isDirut())
+                <a href="{{ route('dirut.dashboard') }}" class="dropdown-item" style="border: 1px solid var(--border); border-radius: var(--radius-sm);" @click="mobileMoreOpen = false">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dirut Dashboard
+                </a>
+
+                <a href="{{ route('agenda.index') }}" class="dropdown-item" style="border: 1px solid var(--border); border-radius: var(--radius-sm);" @click="mobileMoreOpen = false">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Kalender Agenda
+                </a>
+
+                <a href="{{ route('profile.edit') }}" class="dropdown-item" style="border: 1px solid var(--border); border-radius: var(--radius-sm);" @click="mobileMoreOpen = false">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Profil
+                </a>
+                @else
                 <a href="{{ route('plans.index') }}" class="dropdown-item" style="border: 1px solid var(--border); border-radius: var(--radius-sm);" @click="mobileMoreOpen = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     Monthly Plan
@@ -485,8 +580,14 @@
                     Admin Panel
                 </a>
                 @endif
+                @endif
 
                 <div style="height: 1px; background: var(--border); margin: 6px 0;"></div>
+
+                <button type="button" class="dropdown-item" style="border: 1px solid var(--border); border-radius: var(--radius-sm);" onclick="requestNotificationPermission(); mobileMoreOpen = false">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                    <span id="btn-push-mobile-label">Aktifkan Notifikasi HP</span>
+                </button>
 
                 <button type="button" class="dropdown-item" style="border: 1px solid var(--border); border-radius: var(--radius-sm);" onclick="samaraToggleTheme(); mobileMoreOpen = false">
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
@@ -497,7 +598,7 @@
                 <button type="button"
                         class="pwa-install-trigger dropdown-item"
                         onclick="triggerPwaInstall(); mobileMoreOpen = false"
-                        style="display:none; border: 1px solid var(--primary); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--primary); font-weight:700;">
+                        style="display:none; border: 1px solid var(--accent); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--heading); font-weight:700;">
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Install Aplikasi SAMARA
                 </button>
@@ -527,6 +628,7 @@
         const isDark = html.classList.toggle('dark');
         localStorage.setItem('samara_theme', isDark ? 'dark' : 'light');
         updateThemeIcon(isDark);
+        window.dispatchEvent(new CustomEvent('samara-theme-changed', { detail: { isDark: isDark } }));
         fetch('{{ route('home') }}?_theme=' + (isDark ? 'dark' : 'light'), {
             method: 'POST',
             headers: {
@@ -621,6 +723,79 @@
                 });
         });
     }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function requestNotificationPermission() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            alert('Push notifications tidak didukung di browser ini.');
+            return;
+        }
+
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                alert('Izin notifikasi tidak diberikan (status: ' + permission + ').');
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            let subscription = await registration.pushManager.getSubscription();
+
+            if (!subscription) {
+                const vapidPublicKey = '{{ config('services.vapid.public_key') }}';
+                if (!vapidPublicKey) {
+                    alert('Kunci VAPID belum dikonfigurasi di server.');
+                    return;
+                }
+                const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedVapidKey
+                });
+            }
+
+            const response = await fetch('{{ route('push.subscribe') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(subscription)
+            });
+
+            if (response.ok) {
+                alert('Notifikasi HP berhasil diaktifkan untuk akun Anda!');
+                const btn = document.getElementById('btn-push-subscribe');
+                if (btn) btn.innerText = '✓ Notifikasi HP Aktif';
+                const mobileLabel = document.getElementById('btn-push-mobile-label');
+                if (mobileLabel) mobileLabel.innerText = '✓ Notifikasi HP Aktif';
+            } else {
+                alert('Gagal mendaftarkan langganan notifikasi ke server.');
+            }
+        } catch (error) {
+            console.error('Error activating push notifications:', error);
+            alert('Gagal mengaktifkan notifikasi: ' + error.message);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const btn = document.getElementById('btn-push-subscribe');
+            if (btn) btn.innerText = '✓ Notifikasi HP Aktif';
+            const mobileLabel = document.getElementById('btn-push-mobile-label');
+            if (mobileLabel) mobileLabel.innerText = '✓ Notifikasi HP Aktif';
+        }
+    });
 </script>
 
 </body>

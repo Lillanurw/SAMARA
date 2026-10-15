@@ -16,6 +16,7 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
+        'honorific',
         'full_name',
         'role',
         'manager_email',
@@ -51,10 +52,16 @@ class User extends Authenticatable
             'PLANNER', 'FIELD', 'MANAGER', 'VIEWER', 'TIM' => UserRole::TIM->value,
             'ADMIN' => UserRole::ADMIN->value,
             'DIRECTOR' => UserRole::DIRECTOR->value,
+            'DIREKTUR_UTAMA' => UserRole::DIREKTUR_UTAMA->value,
             default => UserRole::TIM->value,
         };
 
         $this->attributes['role'] = $mappedRole;
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return trim(($this->honorific ? $this->honorific . ' ' : '') . $this->full_name);
     }
 
     public function isAdmin(): bool
@@ -70,6 +77,17 @@ class User extends Authenticatable
     public function isDirector(): bool
     {
         return $this->role === UserRole::DIRECTOR;
+    }
+
+    public function isDirut(): bool
+    {
+        return $this->role === UserRole::DIREKTUR_UTAMA;
+    }
+
+    public function scopeSalesAssignable($query)
+    {
+        return $query->where('is_active', true)
+                     ->where('role', '!=', UserRole::DIREKTUR_UTAMA->value);
     }
 
     public function areas(): BelongsToMany
@@ -105,5 +123,15 @@ class User extends Authenticatable
     public function createdDirections(): HasMany
     {
         return $this->hasMany(DirectorInput::class, 'created_by');
+    }
+
+    public function agendas()
+    {
+        return $this->hasMany(Agenda::class);
+    }
+
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
     }
 }

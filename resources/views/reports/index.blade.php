@@ -71,7 +71,7 @@
                     
                     <!-- Dropdown Button -->
                     <button type="button" @click="open = !open" @click.away="open = false"
-                        class="form-control" style="width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; min-height: 38px; background: #fff; cursor: pointer; padding: 0 12px;">
+                        class="form-control" style="width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; min-height: 38px; background: var(--field-bg); color: var(--text); border: 1px solid var(--field-border); cursor: pointer; padding: 0 12px;">
                         <span x-text="selectedNames" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;"></span>
                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                     </button>
@@ -79,17 +79,17 @@
                     <!-- Dropdown Menu -->
                     <div x-show="open" x-cloak
                         x-transition.opacity.duration.200ms
-                        style="position: absolute; z-index: 50; top: 100%; left: 0; right: 0; margin-top: 4px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 250px; overflow-y: auto;">
+                        style="position: absolute; z-index: 50; top: 100%; left: 0; right: 0; margin-top: 4px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 250px; overflow-y: auto;">
                         
-                        <div @click="selected = []" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--danger); background: #fef2f2;">
+                        <div @click="selected = []" style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--danger); background: var(--danger-soft, rgba(239, 68, 68, 0.12));">
                             ✕ Bersihkan Pilihan
                         </div>
                         
                         <template x-for="opt in options" :key="opt.id">
-                            <label style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 13px; margin: 0; transition: background 0.2s;"
-                                   onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                            <label style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; margin: 0; transition: background 0.2s;"
+                                   onmouseover="this.style.background='var(--surface-soft)'" onmouseout="this.style.background='transparent'">
                                 <input type="checkbox" :value="opt.id" @change="toggle(opt.id)" :checked="selected.includes(opt.id.toString())"
-                                       style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;">
+                                       style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;">
                                 <span x-text="opt.name" style="flex: 1;"></span>
                             </label>
                         </template>
@@ -152,7 +152,7 @@
                 <a href="{{ route('reports.exportGsheets', ['start_date' => $startDate, 'end_date' => $endDate, 'pic_id' => $picIds ?? [], 'instansi' => $instansi ?? null, 'satuan' => $satuan ?? null]) }}"
                    target="_blank"
                    class="dropdown-item"
-                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #15803d; text-decoration: none;">
+                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--success); text-decoration: none;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 3v3h-7V6h7zm-8 3H4V6h7v3zM4 11h7v3H4v-3zm9 0h7v3h-7v-3zm7 7h-7v-3h7v3zm-8 0H4v-3h7v3z"/></svg>
                     <span>Export ke Google Sheets</span>
                 </a>
@@ -160,7 +160,7 @@
                 <a href="{{ route('reports.exportGdocs', ['start_date' => $startDate, 'end_date' => $endDate, 'pic_id' => $picIds ?? [], 'instansi' => $instansi ?? null, 'satuan' => $satuan ?? null]) }}"
                    target="_blank"
                    class="dropdown-item"
-                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #1d4ed8; text-decoration: none;">
+                   style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--link); text-decoration: none;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                     <span>Export ke Google Docs</span>
                 </a>
@@ -181,15 +181,15 @@
 
 <!-- Pending Visit Reports Box -->
 @if($pendingPlans->isNotEmpty())
-    <div class="samara-card" style="border-left: 4px solid var(--warning); background: #fffdf5; margin-bottom: 24px;">
+    <div class="samara-card" style="border: 1px solid var(--border); border-left: 4px solid var(--warning); background: var(--surface-soft); margin-bottom: 24px;">
         <div class="card-header-title" style="color: var(--warning);">
             <span>⚠️ Kunjungan Membutuhkan Laporan ({{ $pendingPlans->count() }})</span>
         </div>
 
         <div class="grid grid-3">
             @foreach($pendingPlans as $plan)
-                <div style="background: white; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                    <div style="font-weight: 700; color: var(--primary); font-size: 14px;">{{ $plan->customer->customer_name }}</div>
+                <div style="background: var(--surface); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    <div style="font-weight: 700; color: var(--heading); font-size: 14px;">{{ $plan->customer->customer_name }}</div>
                     <div style="font-size: 12px; color: var(--text-secondary); margin: 4px 0;">Tanggal: {{ $plan->planned_date->format('d/m/Y') }}</div>
                     <a href="{{ route('reports.create', ['visit_plan_id' => $plan->id]) }}" class="btn btn-sm btn-primary" style="width: 100%; margin-top: 10px;">
                         Isi Laporan Sekarang
@@ -228,7 +228,7 @@
                     @foreach($reports as $rep)
                         <tr>
                             <td>
-                                <div style="font-weight: 700; color: var(--primary);">{{ $rep->report_number }}</div>
+                                <div style="font-weight: 700; color: var(--heading);">{{ $rep->report_number }}</div>
                                 <div style="font-size: 11px; color: var(--text-secondary);">Plan: {{ $rep->visitPlan->plan_number ?? '-' }}</div>
                             </td>
                             <td>

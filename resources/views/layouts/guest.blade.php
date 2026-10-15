@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SAMARA — Login Aplikasi Sales and Marketing Activity Reporting and Analytics">
     <title>Masuk — SAMARA</title>
+    <script>
+        if (localStorage.getItem('samara_theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {

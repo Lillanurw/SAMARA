@@ -18,34 +18,48 @@
 .monthly-calendar-header {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
-    background-color: #1b365d !important;
-    color: #ffffff !important;
+    background-color: var(--calendar-head-bg) !important;
+    color: var(--calendar-head-text) !important;
     font-weight: 700;
     font-size: 13px;
     text-align: center;
-    border-bottom: 1px solid var(--border, #dce3ea);
+    border-bottom: 1px solid var(--border);
+    opacity: 1 !important;
+}
+
+html.dark .monthly-calendar-header {
+    background-color: var(--calendar-head-bg) !important;
+    color: var(--calendar-head-text) !important;
+    border-bottom: 1px solid var(--border) !important;
 }
 
 .monthly-calendar-header .day-name {
     padding: 12px 4px !important;
     letter-spacing: 0.3px;
     text-align: center;
+    color: var(--calendar-head-text) !important;
+    opacity: 1 !important;
+}
+
+html.dark .monthly-calendar-header .day-name {
+    color: var(--calendar-head-text) !important;
+    opacity: 1 !important;
 }
 
 .monthly-calendar-grid {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
     grid-auto-rows: 120px !important;
-    background-color: var(--border, #dce3ea) !important;
+    background-color: var(--border) !important;
     gap: 1px !important;
 }
 
 html.dark .monthly-calendar-grid {
-    background-color: #344054 !important;
+    background-color: var(--border) !important;
 }
 
 .monthly-calendar-cell {
-    background-color: var(--surface, #ffffff) !important;
+    background-color: var(--surface) !important;
     height: 120px !important;
     min-height: 120px !important;
     max-height: 120px !important;
@@ -58,16 +72,17 @@ html.dark .monthly-calendar-grid {
 }
 
 html.dark .monthly-calendar-cell {
-    background-color: #1f2937 !important;
+    background-color: var(--surface) !important;
 }
 
 .monthly-calendar-cell.other-month {
-    background-color: var(--surface-soft, #f8fafc) !important;
+    background-color: var(--surface-soft) !important;
     opacity: 0.55;
 }
 
 html.dark .monthly-calendar-cell.other-month {
-    background-color: #1a2435 !important;
+    background-color: var(--surface-soft) !important;
+    opacity: 0.55;
 }
 
 .monthly-calendar-cell.is-today {
@@ -75,23 +90,23 @@ html.dark .monthly-calendar-cell.other-month {
 }
 
 html.dark .monthly-calendar-cell.is-today {
-    background-color: rgba(16, 185, 129, 0.12) !important;
+    background-color: rgba(74, 222, 128, 0.12) !important;
 }
 
 .monthly-calendar-cell .day-number {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text, #1f2937);
+    color: var(--text);
     margin-bottom: 6px;
     line-height: 1;
 }
 
 html.dark .monthly-calendar-cell .day-number {
-    color: #f8fafc;
+    color: var(--heading);
 }
 
 .monthly-calendar-cell.is-today .day-number {
-    color: var(--success, #2e8b57);
+    color: var(--success);
 }
 
 .monthly-calendar-events {
@@ -143,6 +158,36 @@ html.dark .monthly-calendar-cell .day-number {
     border-left-color: #9ca3af !important;
 }
 
+html.dark .calendar-event-pill {
+    background-color: rgba(56, 189, 248, 0.18) !important;
+    color: #7dd3fc !important;
+    border-left: 3px solid #38bdf8 !important;
+}
+
+html.dark .calendar-event-pill:hover {
+    background-color: rgba(56, 189, 248, 0.28) !important;
+    color: #bae6fd !important;
+}
+
+html.dark .calendar-event-pill.status-completed {
+    background-color: rgba(74, 222, 128, 0.18) !important;
+    color: #86efac !important;
+    border-left-color: #4ade80 !important;
+}
+
+html.dark .calendar-event-pill.status-in_progress {
+    background-color: rgba(251, 191, 36, 0.18) !important;
+    color: #fde047 !important;
+    border-left-color: #fbbf24 !important;
+}
+
+html.dark .calendar-event-pill.status-cancelled {
+    background-color: rgba(148, 163, 184, 0.15) !important;
+    color: #cbd5e1 !important;
+    border-left-color: #64748b !important;
+    text-decoration: line-through;
+}
+
 .calendar-event-pill .event-time {
     font-weight: 700;
     flex-shrink: 0;
@@ -161,7 +206,7 @@ html.dark .monthly-calendar-cell .day-number {
 
     <!-- Header Title Bar (Picture 1 style header) -->
     <div style="margin-bottom: 16px;">
-        <h2 style="font-size: 20px; font-weight: 800; color: var(--primary);">
+        <h2 style="font-size: 20px; font-weight: 800; color: var(--heading);">
             Perencanaan Bulanan: {{ $carbonMonth->translatedFormat('F Y') }}
         </h2>
     </div>
@@ -288,7 +333,7 @@ html.dark .monthly-calendar-cell .day-number {
     <!-- Monthly Plans List / Table (Daftar Rencana - Picture 1 style) -->
     <div class="samara-card" style="padding: 0; overflow: hidden; margin-top: 24px;">
         <div style="padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
-            <h3 style="font-size: 18px; font-weight: 800; color: var(--primary); margin: 0;">Daftar Rencana</h3>
+            <h3 style="font-size: 18px; font-weight: 800; color: var(--heading); margin: 0;">Daftar Rencana</h3>
             <span class="badge badge-navy" style="font-size: 12px; padding: 4px 12px;">{{ $plans->count() }} kunjungan</span>
         </div>
 
@@ -301,15 +346,15 @@ html.dark .monthly-calendar-cell .day-number {
         @else
             <div class="table-responsive">
                 <table class="samara-table">
-                    <thead style="background-color: #1b365d; color: white;">
+                    <thead>
                         <tr>
-                            <th style="color: white; background: #1b365d;">Tanggal</th>
-                            <th style="color: white; background: #1b365d;">Customer</th>
-                            <th style="color: white; background: #1b365d;">Area</th>
-                            <th style="color: white; background: #1b365d;">Owner</th>
-                            <th style="color: white; background: #1b365d;">Priority</th>
-                            <th style="color: white; background: #1b365d;">Status</th>
-                            <th style="color: white; background: #1b365d; text-align: center;">Aksi</th>
+                            <th>Tanggal</th>
+                            <th>Customer</th>
+                            <th>Area</th>
+                            <th>Owner</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -320,7 +365,7 @@ html.dark .monthly-calendar-cell .day-number {
                                     <div style="font-size: 12px; color: var(--text-secondary);">{{ substr($p->start_time, 0, 5) }} - {{ substr($p->end_time, 0, 5) }}</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 700; color: var(--primary);">{{ $p->customer->customer_name }}</div>
+                                    <div style="font-weight: 700; color: var(--heading);">{{ $p->customer->customer_name }}</div>
                                     <div style="font-size: 12px; color: var(--text-secondary);">{{ $p->activity_type?->label() ?? $p->activity_type }}</div>
                                 </td>
                                 <td>
@@ -373,11 +418,11 @@ html.dark .monthly-calendar-cell .day-number {
     </div>
 
     <!-- Modal Tambah Rencana Kunjungan -->
-    <div x-show="addModalOpen" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 600px; border-radius: var(--samara-radius-large); padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: var(--samara-shadow-hover);" @click.away="addModalOpen = false">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--samara-border); padding-bottom: 14px;">
-                <h3 style="font-weight: 800; font-size: 18px; color: var(--samara-navy);">Tambah Rencana Kunjungan</h3>
-                <button type="button" @click="addModalOpen = false" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--samara-text-secondary);">&times;</button>
+    <div x-show="addModalOpen" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); width: 100%; max-width: 600px; border-radius: var(--samara-radius-large); padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: var(--samara-shadow-hover); border: 1px solid var(--border);" @click.away="addModalOpen = false">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
+                <h3 style="font-weight: 800; font-size: 18px; color: var(--heading);">Tambah Rencana Kunjungan</h3>
+                <button type="button" @click="addModalOpen = false" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             </div>
 
             <form action="{{ route('plans.store') }}" method="POST">

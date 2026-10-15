@@ -53,7 +53,7 @@
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
-            <div class="kpi-num" style="color:var(--primary);">{{ $plannedVisitsCount }}</div>
+            <div class="kpi-num" style="color:var(--heading);">{{ $plannedVisitsCount }}</div>
             <div class="kpi-desc">Planned Visits</div>
         </div>
     </div>
@@ -97,7 +97,7 @@
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         </div>
         <div>
-            <div class="kpi-num" style="color:var(--primary);">{{ $customerCoveragePct }}%</div>
+            <div class="kpi-num" style="color:var(--heading);">{{ $customerCoveragePct }}%</div>
             <div class="kpi-desc">Customer Coverage ({{ $totalCustomersCount }} Aktif)</div>
         </div>
     </div>
@@ -178,16 +178,26 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+let chartInstances = [];
+
+function initOrUpdateCharts() {
     const isDark = document.documentElement.classList.contains('dark');
     const isMobile = window.innerWidth < 768;
-    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-    const labelColor = isDark ? '#CBD5E1' : '#667085';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)';
+    const labelColor = isDark ? '#E2E8F0' : '#475569';
+    const surfaceColor = isDark ? '#181c28' : '#ffffff';
+
+    // Clear existing charts on theme toggle
+    chartInstances.forEach(c => {
+        if (c && typeof c.destroy === 'function') {
+            c.destroy();
+        }
+    });
+    chartInstances = [];
 
     Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
     Chart.defaults.color = labelColor;
 
-    // Label formatting map for clean UI
     const labelMap = {
         'COMPLETED': 'Selesai',
         'IN_PROGRESS': 'Berjalan',
@@ -205,108 +215,136 @@ document.addEventListener('DOMContentLoaded', () => {
         return labelMap[str] || str.replace(/_/g, ' ');
     }
 
-    // Navy-blue corporate palette
-    const palette = ['#17365D', '#1F4E78', '#00A6B2', '#2E8B57', '#C69214', '#C33C3C', '#344054'];
+    // High contrast palettes: light = corporate navy, dark = vibrant accessible colors (all >= 4.5:1 against dark surface)
+    const lightPalette = ['#17365D', '#1F4E78', '#00A6B2', '#2E8B57', '#C69214', '#C33C3C', '#475569'];
+    const darkPalette  = ['#38BDF8', '#818CF8', '#2DD4BF', '#4ADE80', '#FBBF24', '#F87171', '#94A3B8'];
+    const palette = isDark ? darkPalette : lightPalette;
+    const barBg = isDark ? '#38BDF8' : '#1F4E78';
 
     // 1. Status Doughnut
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    const statusData = @json($statusCounts);
-    new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(statusData).map(formatLabel),
-            datasets: [{
-                data: Object.values(statusData),
-                backgroundColor: palette,
-                borderWidth: 2,
-                borderColor: isDark ? '#1F2937' : '#fff',
-                hoverOffset: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '62%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: isMobile ? 8 : 14,
-                        boxWidth: 10,
-                        font: { size: isMobile ? 11 : 12 },
-                        usePointStyle: true,
-                        pointStyle: 'circle'
+    const statusEl = document.getElementById('statusChart');
+    if (statusEl) {
+        const statusCtx = statusEl.getContext('2d');
+        const statusData = @json($statusCounts);
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusData).map(formatLabel),
+                datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: palette,
+                    borderWidth: 2,
+                    borderColor: surfaceColor,
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: labelColor,
+                            padding: isMobile ? 8 : 14,
+                            boxWidth: 10,
+                            font: { size: isMobile ? 11 : 12 },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+        chartInstances.push(statusChart);
+    }
 
     // 2. Outcome Bar
-    const outcomeCtx = document.getElementById('outcomeChart').getContext('2d');
-    const outcomeData = @json($outcomeData);
-    new Chart(outcomeCtx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(outcomeData).map(formatLabel),
-            datasets: [{
-                label: 'Jumlah Kunjungan',
-                data: Object.values(outcomeData),
-                backgroundColor: '#1F4E78',
-                borderRadius: 6,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: labelColor, precision: 0 } },
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        color: labelColor,
-                        font: { size: isMobile ? 10 : 12 },
-                        maxRotation: isMobile ? 20 : 0,
-                        autoSkip: false
+    const outcomeEl = document.getElementById('outcomeChart');
+    if (outcomeEl) {
+        const outcomeCtx = outcomeEl.getContext('2d');
+        const outcomeData = @json($outcomeData);
+        const outcomeChart = new Chart(outcomeCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(outcomeData).map(formatLabel),
+                datasets: [{
+                    label: 'Jumlah Kunjungan',
+                    data: Object.values(outcomeData),
+                    backgroundColor: barBg,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: { color: labelColor, precision: 0 }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: labelColor,
+                            font: { size: isMobile ? 10 : 12 },
+                            maxRotation: isMobile ? 20 : 0,
+                            autoSkip: false
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+        chartInstances.push(outcomeChart);
+    }
 
     // 3. Area Pie
-    const areaCtx = document.getElementById('areaChart').getContext('2d');
-    const areaData = @json($areaActivityData);
-    new Chart(areaCtx, {
-        type: 'pie',
-        data: {
-            labels: Object.keys(areaData).map(formatLabel),
-            datasets: [{
-                data: Object.values(areaData),
-                backgroundColor: palette,
-                borderWidth: 2,
-                borderColor: isDark ? '#1F2937' : '#fff',
-                hoverOffset: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: isMobile ? 8 : 14,
-                        boxWidth: 10,
-                        font: { size: isMobile ? 11 : 12 },
-                        usePointStyle: true,
-                        pointStyle: 'circle'
+    const areaEl = document.getElementById('areaChart');
+    if (areaEl) {
+        const areaCtx = areaEl.getContext('2d');
+        const areaData = @json($areaActivityData);
+        const areaChart = new Chart(areaCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(areaData).map(formatLabel),
+                datasets: [{
+                    data: Object.values(areaData),
+                    backgroundColor: palette,
+                    borderWidth: 2,
+                    borderColor: surfaceColor,
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: labelColor,
+                            padding: isMobile ? 8 : 14,
+                            boxWidth: 10,
+                            font: { size: isMobile ? 11 : 12 },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     }
                 }
             }
-        }
+        });
+        chartInstances.push(areaChart);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initOrUpdateCharts();
+    window.addEventListener('samara-theme-changed', () => {
+        initOrUpdateCharts();
     });
 });
 </script>

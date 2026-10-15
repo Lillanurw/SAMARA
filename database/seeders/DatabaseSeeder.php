@@ -108,6 +108,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $dirut = User::firstOrCreate(
+            ['email' => 'dirut@pastac.co.id'],
+            [
+                'password' => Hash::make('password123'),
+                'honorific' => 'Bpk',
+                'full_name' => 'Irwan Wardianto',
+                'role' => UserRole::DIREKTUR_UTAMA->value,
+                'is_active' => true,
+            ]
+        );
+
         // 2. Areas
         $areaWest = Area::firstOrCreate(
             ['area_code' => 'AREA-WEST'],

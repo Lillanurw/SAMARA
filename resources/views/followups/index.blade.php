@@ -103,7 +103,7 @@
                     </div>
 
                     {{-- Title --}}
-                    <h4 style="font-weight:700; font-size:15px; color:var(--primary); margin-bottom:5px;">
+                    <h4 style="font-weight:700; font-size:15px; color:var(--heading); margin-bottom:5px;">
                         {{ $fu->action_title }}
                     </h4>
 
@@ -158,10 +158,10 @@
                      x-cloak
                      aria-modal="true"
                      role="dialog">
-                    <div style="background:var(--surface); width:100%; max-width:480px; border-radius:var(--radius-lg); padding:28px; max-height:85vh; overflow-y:auto;"
+                    <div style="background:var(--surface); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow-lg); width:100%; max-width:480px; border-radius:var(--radius-lg); padding:28px; max-height:85vh; overflow-y:auto;"
                          @click.away="activeModalId = null">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:14px;">
-                            <h3 style="font-weight:700; font-size:16px; color:var(--primary);">Update Status Follow-up</h3>
+                            <h3 style="font-weight:700; font-size:16px; color:var(--heading);">Update Status Follow-up</h3>
                             <button type="button" @click="activeModalId = null" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-secondary);">✕</button>
                         </div>
 

@@ -22,26 +22,26 @@
             <table class="samara-table" style="border: 1px solid var(--border);">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Kode & Customer</th>
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Instansi & Satuan</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Kode & Customer</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Instansi & Satuan</th>
                         
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Kota / Provinsi</th>
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">PIC (Owner)</th>
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Tier</th>
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Status</th>
-                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; background-color: var(--surface-soft); box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Aksi</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Kota / Provinsi</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">PIC (Owner)</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Tier</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Status</th>
+                        <th style="border: 1px solid var(--border); text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($customers as $c)
                         <tr>
                             <td style="border: 1px solid var(--border);">
-                                <div style="font-weight: 700; color: var(--navy);">{{ $c->customer_name }}</div>
-                                <div style="font-size: 11px; color: var(--muted);">{{ $c->customer_code }}</div>
+                                <div style="font-weight: 700; color: var(--heading);">{{ $c->customer_name }}</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">{{ $c->customer_code }}</div>
                             </td>
                             <td style="border: 1px solid var(--border);">
                                 <div style="font-weight: 600;">{{ $c->instansi ?? '-' }}</div>
-                                <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">{{ $c->satuan ?? '-' }}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">{{ $c->satuan ?? '-' }}</div>
                             </td>
                             
                             <td style="border: 1px solid var(--border);">{{ $c->city }}, {{ $c->province }}</td>
@@ -60,9 +60,9 @@
                                     <button type="button" @click="editModal = true" class="btn btn-sm btn-secondary">Edit</button>
 
                                     <!-- Edit Modal -->
-                                    <div x-show="editModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: left;" x-cloak>
-                                        <div style="background: white; width: 100%; max-width: 600px; border-radius: var(--radius); padding: 24px; max-height: 90vh; overflow-y: auto; text-align: left;" @click.away="editModal = false">
-                                            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--navy);">Edit Customer</h3>
+                                    <div x-show="editModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: left;" x-cloak>
+                                        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 24px; max-height: 90vh; overflow-y: auto; text-align: left; box-shadow: var(--shadow-lg);" @click.away="editModal = false">
+                                            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--heading);">Edit Customer</h3>
                                             <form action="{{ route('customers.update', $c->id) }}" method="POST" x-data="customerForm('{{ addslashes($c->instansi) }}', '{{ addslashes($c->satuan) }}')">
                                                 @csrf
                                                 @method('PUT')
@@ -194,9 +194,9 @@
     </div>
 
     <!-- Modal Tambah Customer -->
-    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 600px; border-radius: var(--radius); padding: 24px; max-height: 90vh; overflow-y: auto;" @click.away="addModal = false">
-            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--navy);">Tambah Customer Baru</h3>
+    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);" @click.away="addModal = false">
+            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--heading);">Tambah Customer Baru</h3>
             <form action="{{ route('customers.store') }}" method="POST" x-data="customerForm()">
                 @csrf
                 <div class="grid grid-2">

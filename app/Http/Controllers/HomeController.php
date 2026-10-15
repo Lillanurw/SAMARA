@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\DirectorInputStatus;
 use App\Enums\FollowUpStatus;
 use App\Enums\PlanStatus;
+use App\Enums\UserRole;
 use App\Models\DirectorInput;
 use App\Models\FollowUp;
 use App\Models\VisitPlan;
@@ -15,9 +16,14 @@ use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $user = Auth::user();
+        
+        if ($user->isDirut()) {
+            return redirect()->route('dirut.dashboard');
+        }
+
         $today = Carbon::today();
 
         // 1. Agenda Hari Ini

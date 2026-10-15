@@ -38,6 +38,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'honorific' => ['nullable', 'string', 'max:20'],
             'full_name' => ['required', 'string', 'max:255'],
             'role' => ['required', 'string'],
             'password' => ['required', 'string', 'min:6'],
@@ -51,6 +52,7 @@ class UserController extends Controller
 
         $user = User::create([
             'email' => strtolower(trim($validated['email'])),
+            'honorific' => $validated['honorific'] ?? null,
             'full_name' => $validated['full_name'],
             'role' => $validated['role'],
             'password' => Hash::make($validated['password']),
@@ -64,13 +66,14 @@ class UserController extends Controller
 
         AuditLogger::log('CREATE_USER', 'USER', $user->id, null, $user->toArray());
 
-        return back()->with('success', 'User ' . $user->full_name . ' berhasil ditambahkan.');
+        return back()->with('success', 'User ' . $user->display_name . ' berhasil ditambahkan.');
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'honorific' => ['nullable', 'string', 'max:20'],
             'full_name' => ['required', 'string', 'max:255'],
             'role' => ['required', 'string'],
             'password' => ['nullable', 'string', 'min:6'],
@@ -83,6 +86,7 @@ class UserController extends Controller
         $before = $user->toArray();
 
         $user->email = strtolower(trim($validated['email']));
+        $user->honorific = $validated['honorific'] ?? null;
         $user->full_name = $validated['full_name'];
         $user->role = $validated['role'];
         $user->manager_email = $validated['manager_email'] ?? null;
@@ -100,7 +104,7 @@ class UserController extends Controller
 
         AuditLogger::log('UPDATE_USER', 'USER', $user->id, $before, $user->toArray());
 
-        return back()->with('success', 'Data user ' . $user->full_name . ' berhasil diperbarui.');
+        return back()->with('success', 'Data user ' . $user->display_name . ' berhasil diperbarui.');
     }
 
     public function toggleActive(User $user): RedirectResponse

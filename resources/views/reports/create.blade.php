@@ -11,10 +11,10 @@
     </div>
 
     <!-- Customer & Plan Summary Card -->
-    <div class="card" style="background: #F8FAFC; margin-bottom: 24px;">
+    <div class="card" style="background: var(--surface-soft); margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h3 style="font-size: 18px; font-weight: 800; color: var(--navy);">{{ $visitPlan->customer->customer_name }}</h3>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--heading);">{{ $visitPlan->customer->customer_name }}</h3>
                 <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">
                     📍 {{ $visitPlan->area->area_name }} | {{ $visitPlan->customer->address }}
                 </div>
@@ -37,7 +37,7 @@
             @csrf
             <input type="hidden" name="visit_plan_id" value="{{ $visitPlan->id }}">
 
-            <h4 style="font-weight: 700; color: var(--navy); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+            <h4 style="font-weight: 700; color: var(--heading); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                 1. Pelaksanaan & Waktu Aktual
             </h4>
 
@@ -53,7 +53,7 @@
                 </div>
             </div>
 
-            <h4 style="font-weight: 700; color: var(--navy); margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+            <h4 style="font-weight: 700; color: var(--heading); margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                 2. Hasil & Ringkasan Pertemuan
             </h4>
 
@@ -98,7 +98,7 @@
                 <textarea name="next_step_summary" class="form-control" rows="2" required placeholder="Tuliskan tindakan yang akan dilakukan berikutnya..."></textarea>
             </div>
 
-            <h4 style="font-weight: 700; color: var(--navy); margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+            <h4 style="font-weight: 700; color: var(--heading); margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                 3. Insight Tambahan & Kendala (Opsional)
             </h4>
 
@@ -118,9 +118,9 @@
             </div>
 
             <!-- Checkbox Follow Up Required -->
-            <div style="margin-top: 24px; padding: 16px; background: #FAFBFD; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                <label style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--navy); cursor: pointer;">
-                    <input type="checkbox" name="follow_up_required" value="1" x-model="followUpRequired" style="width: 18px; height: 18px; accent-color: var(--navy);">
+            <div style="margin-top: 24px; padding: 16px; background: var(--surface-soft); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <label style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--heading); cursor: pointer;">
+                    <input type="checkbox" name="follow_up_required" value="1" x-model="followUpRequired" style="width: 18px; height: 18px; accent-color: var(--primary);">
                     <span>Perlu Buat Tindak Lanjut (Follow-up Action Item) Sekarang?</span>
                 </label>
 

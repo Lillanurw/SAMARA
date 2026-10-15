@@ -32,10 +32,10 @@
     <!-- 7 Days Agenda Cards -->
     <div style="display: flex; flex-direction: column; gap: 20px;">
         @foreach($days as $dateStr => $dayInfo)
-            <div class="samara-card" style="{{ $dayInfo['isToday'] ? 'border: 2px solid var(--accent); background: #f0fdf4;' : '' }}">
+            <div class="samara-card" style="{{ $dayInfo['isToday'] ? 'border: 2px solid var(--accent); background: var(--success-soft);' : '' }}">
                 <div class="card-header-title" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 18px; font-weight: 800; color: {{ $dayInfo['isToday'] ? 'var(--success)' : 'var(--primary)' }};">
+                        <span style="font-size: 18px; font-weight: 800; color: {{ $dayInfo['isToday'] ? 'var(--success)' : 'var(--text)' }};">
                             {{ $dayInfo['date']->translatedFormat('l, d F Y') }}
                         </span>
                         @if($dayInfo['isToday'])
@@ -71,7 +71,7 @@
                                     <span class="badge {{ $stClass }}">{{ $plan->status?->label() ?? $plan->status }}</span>
                                 </div>
 
-                                <h4 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">
+                                <h4 style="font-size: 16px; font-weight: 700; color: var(--heading); margin-bottom: 4px;">
                                     {{ $plan->customer->customer_name }}
                                 </h4>
                                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
@@ -128,10 +128,10 @@
     </div>
 
     <!-- Modal Tambah Rencana Kunjungan Baru (Saves to Visit Plans) -->
-    <div x-show="addModalOpen" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-hover);" @click.away="addModalOpen = false">
+    <div x-show="addModalOpen" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-hover);" @click.away="addModalOpen = false">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
-                <h3 style="font-weight: 800; font-size: 18px; color: var(--primary);">Tambah Rencana Kunjungan Baru</h3>
+                <h3 style="font-weight: 800; font-size: 18px; color: var(--heading);">Tambah Rencana Kunjungan Baru</h3>
                 <button type="button" @click="addModalOpen = false" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             </div>
 

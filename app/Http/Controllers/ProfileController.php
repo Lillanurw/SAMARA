@@ -24,10 +24,14 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $request->validate([
+            'honorific'       => 'nullable|string|max:20',
             'full_name'       => 'required|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
+        if ($request->has('honorific')) {
+            $user->honorific = $request->input('honorific') ?: null;
+        }
         $user->full_name = $request->input('full_name');
 
         if ($request->hasFile('profile_picture')) {

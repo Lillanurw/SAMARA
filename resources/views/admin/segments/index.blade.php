@@ -8,7 +8,7 @@
 <div x-data="{ addModal: false }">
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="font-size: 16px; font-weight: 700; color: var(--navy);">Daftar Segment</h3>
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--heading);">Daftar Segment</h3>
             <button type="button" @click="addModal = true" class="btn btn-primary">➕ Tambah Segment</button>
         </div>
 
@@ -26,9 +26,9 @@
                 <tbody>
                     @foreach($segments as $sg)
                         <tr>
-                            <td style="font-weight: 700; color: var(--navy);">{{ $sg->segment_code }}</td>
+                            <td style="font-weight: 700; color: var(--heading);">{{ $sg->segment_code }}</td>
                             <td style="font-weight: 600;">{{ $sg->segment_name }}</td>
-                            <td style="font-size: 13px; color: var(--muted);">{{ $sg->description ?? '-' }}</td>
+                            <td style="font-size: 13px; color: var(--text-muted);">{{ $sg->description ?? '-' }}</td>
                             <td><span class="badge badge-primary">{{ $sg->customers_count }} Customer</span></td>
                             <td>
                                 @if($sg->is_active)
@@ -45,9 +45,9 @@
     </div>
 
     <!-- Modal Tambah Segment -->
-    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 480px; border-radius: var(--radius); padding: 24px;" @click.away="addModal = false">
-            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--navy);">Tambah Segment Baru</h3>
+    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-lg);" @click.away="addModal = false">
+            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--heading);">Tambah Segment Baru</h3>
             <form action="{{ route('admin.segments.store') }}" method="POST">
                 @csrf
                 <div class="form-group">

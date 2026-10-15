@@ -45,12 +45,12 @@
                     @foreach($customers as $c)
                         <tr>
                             <td>
-                                <div style="font-weight: 700; color: var(--navy);">{{ $c->customer_name }}</div>
-                                <div style="font-size: 11px; color: var(--muted);">{{ $c->customer_code }}</div>
+                                <div style="font-weight: 700; color: var(--heading);">{{ $c->customer_name }}</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">{{ $c->customer_code }}</div>
                             </td>
                             <td>
                                 <div style="font-weight: 600;">{{ $c->area->area_name ?? '-' }}</div>
-                                <div style="font-size: 11px; color: var(--muted);">{{ $c->segment->segment_name ?? '-' }}</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">{{ $c->segment->segment_name ?? '-' }}</div>
                             </td>
                             <td>{{ $c->city }}, {{ $c->province }}</td>
                             <td>{{ $c->owner->full_name ?? '-' }}</td>
@@ -83,9 +83,9 @@
     </div>
 
     <!-- Modal Tambah Customer -->
-    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-        <div style="background: white; width: 100%; max-width: 600px; border-radius: var(--radius); padding: 24px; max-height: 90vh; overflow-y: auto;" @click.away="addModal = false">
-            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--navy);">Tambah Customer Baru</h3>
+    <div x-show="addModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+        <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: var(--radius-lg); padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);" @click.away="addModal = false">
+            <h3 style="font-weight: 700; margin-bottom: 16px; color: var(--heading);">Tambah Customer Baru</h3>
             <form action="{{ route('admin.customers.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-2">

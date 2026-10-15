@@ -33,7 +33,7 @@
 @else
     <div class="grid grid-2" x-data="{ completeModalId: null }">
         @foreach($directions as $dir)
-            <div class="samara-card" style="display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid var(--primary);">
+            <div class="samara-card" style="display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid var(--accent);">
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <span class="badge badge-cyan">{{ $dir->input_type?->label() ?? $dir->input_type }}</span>
@@ -46,7 +46,7 @@
                         </div>
                     </div>
 
-                    <h4 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
+                    <h4 style="font-size: 16px; font-weight: 700; color: var(--heading); margin-bottom: 6px;">
                         {{ $dir->topic }}
                     </h4>
 
@@ -62,7 +62,7 @@
                     </div>
 
                     @if($dir->completion_note)
-                        <div style="background: #ECFDF3; padding: 10px; border-radius: var(--radius-sm); font-size: 12px; color: var(--success); margin-bottom: 12px;">
+                        <div style="background: var(--success-soft); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 12px; color: var(--success); margin-bottom: 12px;">
                             <strong>Catatan Penyelesaian:</strong><br>
                             {{ $dir->completion_note }}
                         </div>
@@ -70,7 +70,7 @@
                 </div>
 
                 <div>
-                    <div style="font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; display: flex; justify-content: space-between;">
+                    <div style="font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; display: flex; justify-content: space-between;">
                         <div>Dari: <strong>{{ $dir->creator->full_name ?? 'Director' }}</strong></div>
                         <div>Tenggat: <strong>{{ $dir->due_date ? $dir->due_date->format('d/m/Y') : '-' }}</strong></div>
                     </div>
@@ -106,9 +106,9 @@
                 </div>
 
                 <!-- Complete Modal -->
-                <div x-show="completeModalId === {{ $dir->id }}" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
-                    <div style="background: white; width: 100%; max-width: 480px; border-radius: var(--radius); padding: 24px;" @click.away="completeModalId = null">
-                        <h3 style="font-weight: 700; margin-bottom: 12px; color: var(--navy);">Selesaikan Arahan Director</h3>
+                <div x-show="completeModalId === {{ $dir->id }}" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;" x-cloak>
+                    <div style="background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 100%; max-width: 480px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-lg);" @click.away="completeModalId = null">
+                        <h3 style="font-weight: 700; margin-bottom: 12px; color: var(--heading);">Selesaikan Arahan Director</h3>
                         <form action="{{ route('directions.complete', $dir->id) }}" method="POST">
                             @csrf
                             @method('PATCH')

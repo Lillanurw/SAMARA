@@ -20,7 +20,7 @@
                 <tbody>
                     @foreach($settings as $st)
                         <tr>
-                            <td style="font-weight: 700; color: var(--navy);">{{ $st->setting_key }}</td>
+                            <td style="font-weight: 700; color: var(--heading);">{{ $st->setting_key }}</td>
                             <td>
                                 <input type="text" name="settings[{{ $st->id }}][value]" class="form-control" value="{{ $st->setting_value }}">
                             </td>

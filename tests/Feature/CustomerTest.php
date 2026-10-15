@@ -32,7 +32,7 @@ class CustomerTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($admin)->post('/admin/customers', [
+        $response = $this->actingAs($admin)->post('/customers', [
             'customer_code' => 'CUST-TEST-01',
             'customer_name' => 'Customer Primkopad Test',
             'area_id' => $area->id,

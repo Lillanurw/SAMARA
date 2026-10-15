@@ -6,17 +6,21 @@ use App\Enums\FollowUpStatus;
 use App\Enums\OutcomeType;
 use App\Enums\PlanStatus;
 use App\Enums\SubmitStatus;
+use App\Enums\UserRole;
 use App\Models\Customer;
 use App\Models\FollowUp;
 use App\Models\User;
 use App\Models\VisitPlan;
 use App\Models\VisitReport;
+use App\Notifications\ReportFollowUpRequiredNotification;
+use App\Services\WebPushService;
 use App\Support\AuditLogger;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class VisitReportController extends Controller
@@ -34,7 +38,7 @@ class VisitReportController extends Controller
         if (!is_array($picIds)) {
             $picIds = $picIds ? [$picIds] : [];
         }
-        $users = User::where('is_active', true)->orderBy('full_name')->get();
+        $users = User::salesAssignable()->orderBy('full_name')->get();
 
         // 1. Visits needing report (In Progress or past planned without report)
         $pendingPlans = VisitPlan::with(['customer', 'area', 'owner'])
@@ -92,7 +96,7 @@ class VisitReportController extends Controller
         if (!is_array($picIds)) {
             $picIds = $picIds ? [$picIds] : [];
         }
-        $users = User::where('is_active', true)->orderBy('full_name')->get();
+        $users = User::salesAssignable()->orderBy('full_name')->get();
 
         $carbonStart = Carbon::parse($startDate);
         $carbonEnd = Carbon::parse($endDate);
@@ -173,7 +177,7 @@ class VisitReportController extends Controller
                 ->with('info', 'Laporan kunjungan ini sudah ada.');
         }
 
-        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = User::salesAssignable()->orderBy('full_name')->get();
 
         return view('reports.create', compact('visitPlan', 'teamUsers'));
     }
@@ -197,7 +201,11 @@ class VisitReportController extends Controller
             // Follow Up fields if checked
             'action_title' => ['required_if:follow_up_required,1', 'nullable', 'string', 'max:255'],
             'action_detail' => ['required_if:follow_up_required,1', 'nullable', 'string', 'max:2000'],
-            'owner_id' => ['required_if:follow_up_required,1', 'nullable', 'exists:users,id'],
+            'owner_id' => [
+                'required_if:follow_up_required,1',
+                'nullable',
+                Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)->where('role', '!=', UserRole::DIREKTUR_UTAMA->value)),
+            ],
             'due_date' => ['required_if:follow_up_required,1', 'nullable', 'date'],
             'priority' => ['required_if:follow_up_required,1', 'nullable', 'string'],
         ], [
@@ -205,6 +213,7 @@ class VisitReportController extends Controller
             'engagement_score.between' => 'Skor keterikatan (engagement) harus diisi antara 1 sampai 5.',
             'action_title.required_if' => 'Judul tindakan follow-up wajib diisi jika tindak lanjut diperlukan.',
             'owner_id.required_if' => 'Penanggung jawab follow-up wajib dipilih.',
+            'owner_id.exists' => 'Pengguna yang dipilih tidak valid.',
             'due_date.required_if' => 'Tenggat waktu follow-up wajib diisi.',
         ]);
 
@@ -248,7 +257,7 @@ class VisitReportController extends Controller
             // Create Follow-up if required
             if (!empty($validated['follow_up_required'])) {
                 $actionNumber = 'ACT-' . Carbon::now()->format('Ym') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
-                FollowUp::create([
+                $followUp = FollowUp::create([
                     'action_number' => $actionNumber,
                     'visit_plan_id' => $visitPlan->id,
                     'visit_report_id' => $report->id,
@@ -261,6 +270,22 @@ class VisitReportController extends Controller
                     'status' => FollowUpStatus::OPEN->value,
                     'created_by' => Auth::id(),
                 ]);
+
+                // Notify Directors (Pak Ghaffari / Director SMD)
+                $directors = User::where('role', UserRole::DIRECTOR->value)->where('is_active', true)->get();
+                foreach ($directors as $director) {
+                    $director->notify(new ReportFollowUpRequiredNotification($report, $followUp));
+                }
+
+                // Send WebPush to Director's phone
+                $customerName = $visitPlan->customer?->name ?? 'Customer';
+                $submitterName = Auth::user()?->full_name ?? 'Tim Sales';
+                app(WebPushService::class)->sendToUsers(
+                    $directors,
+                    "Laporan Butuh Tindak Lanjut: {$report->report_number}",
+                    "{$customerName} — Oleh {$submitterName}\nTindakan: {$validated['action_title']}",
+                    route('reports.show', $report->id)
+                );
             }
 
             AuditLogger::log('SUBMIT_VISIT_REPORT', 'VISIT_REPORT', $report->id, null, $report->toArray());
@@ -275,7 +300,7 @@ class VisitReportController extends Controller
         $this->authorize('view', $visitReport);
 
         $visitPlan = $visitReport->visitPlan->load(['customer', 'area', 'members', 'owner']);
-        $teamUsers = User::where('is_active', true)->orderBy('full_name')->get();
+        $teamUsers = User::salesAssignable()->orderBy('full_name')->get();
 
         return view('reports.edit', compact('visitReport', 'visitPlan', 'teamUsers'));
     }
